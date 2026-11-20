@@ -130,6 +130,12 @@ export default function OrdersScreen() {
                   chipInMeta={false}
                   rightValue={toBnDigits(formatTaka(order.total))}
                   last={i === visible.length - 1}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/order/[id]',
+                      params: { id: order.id },
+                    } as never)
+                  }
                 />
               ))}
             </LedgerPanel>

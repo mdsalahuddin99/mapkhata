@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,6 +34,7 @@ const digitsOnly = (s: string) => s.replace(/[^0-9]/g, '');
  */
 export default function CustomerDetailScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
+  const router = useRouter();
   const orders = useOrders();
 
   const customer = phone ? findCustomerByPhone(phone) : undefined;
@@ -134,16 +135,35 @@ export default function CustomerDetailScreen() {
                     rightValue={takaBn(order.total)}
                     rightLabel={due > 0 ? `বকেয়া ${takaBn(due)}` : 'পরিশোধ'}
                     last={i === mine.length - 1}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/order/[id]',
+                        params: { id: order.id },
+                      } as never)
+                    }
                   />
                 );
               })}
             </LedgerPanel>
           )}
 
-          {/* Visual for now — Package C builds the collection screen. */}
+          {/* Collects against this customer's oldest due order (Package C). */}
           {totalDue > 0 && (
             <View style={styles.collectWrap}>
-              <PrimaryButton label="টাকা জমা নিন" />
+              <PrimaryButton
+                label="টাকা জমা নিন"
+                onPress={() => {
+                  const oldest = [...mine]
+                    .filter((o) => dueOf(o) > 0)
+                    .sort((a, b) => a.deliveryInDays - b.deliveryInDays)[0];
+                  if (oldest) {
+                    router.push({
+                      pathname: '/collect/[id]',
+                      params: { id: oldest.id },
+                    } as never);
+                  }
+                }}
+              />
             </View>
           )}
 

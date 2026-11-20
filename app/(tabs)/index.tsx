@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,14 +13,21 @@ import {
   shop,
   toBnDigits,
 } from '../../src/data/mock';
-import { useOrders } from '../../src/store/orders';
+import { useOrders, useSessionCollections } from '../../src/store/orders';
 import { colors, formatTaka, radius, spacing, typography } from '../../src/theme';
 
 /** Amounts on this screen use Bengali digits, balance-style (prototype v1.1). */
 const takaBn = (amount: number) => toBnDigits(formatTaka(amount));
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const orders = useOrders();
+  const sessionCollected = useSessionCollections();
+  const openOrder = (orderId: string) =>
+    router.push({
+      pathname: '/order/[id]',
+      params: { id: orderId },
+    } as never);
   const active = orders.filter((o) => o.status !== 'cancelled');
   const todayOrders = active.filter((o) => o.deliveryInDays === 0);
   const upcomingByDay = [1, 2, 3]
@@ -33,14 +41,15 @@ export default function DashboardScreen() {
   ).size;
   // Stats recomputed from the live store list (same derivations as
   // mock.dashboardStats) so a newly added order moves the numbers at once.
-  // আজকের আদায় stays the shared mock constant — collections aren't orders.
+  // আজকের আদায় = the shared mock constant + this session's collections
+  // taken through the টাকা জমা screen (Package C store counter).
   const stats = {
     todayDeliveries: active.filter((o) => o.deliveryInDays === 0).length,
     runningOrders: active.filter(
       (o) => o.status !== 'delivered',
     ).length,
     totalDue: active.reduce((sum, o) => sum + dueOf(o), 0),
-    todayCollection: dashboardStats.todayCollection,
+    todayCollection: dashboardStats.todayCollection + sessionCollected,
   };
 
   return (
@@ -92,6 +101,7 @@ export default function DashboardScreen() {
                     chipInMeta={false}
                     rightChip
                     last={i === todayOrders.length - 1}
+                    onPress={() => openOrder(order.id)}
                   />
                 ))}
               </LedgerPanel>
@@ -113,6 +123,7 @@ export default function DashboardScreen() {
                     chipInMeta={false}
                     rightValue={takaBn(order.total)}
                     last={i === group.list.length - 1}
+                    onPress={() => openOrder(order.id)}
                   />
                 ))}
               </LedgerPanel>

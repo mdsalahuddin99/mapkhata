@@ -14,14 +14,14 @@ import { LedgerPanel } from '../../src/components/LedgerRow';
 import { SummaryPanel } from '../../src/components/SummaryPanel';
 import { WhiteHeader } from '../../src/components/WhiteHeader';
 import {
+  dashboardStats,
   deliveryLabel,
-  dueEntries,
   dueOf,
-  dueStats,
   fullDateLabel,
   Order,
   toBnDigits,
 } from '../../src/data/mock';
+import { useOrders, useSessionCollections } from '../../src/store/orders';
 import {
   colors,
   controlHeight,
@@ -54,18 +54,40 @@ function ageOf(order: Order): string {
 
 export default function DueScreen() {
   const router = useRouter();
+  const orders = useOrders();
+  const sessionCollected = useSessionCollections();
   const [query, setQuery] = useState('');
+
+  // Package C: the বকেয়া book now derives from the live orders store
+  // (same derivations the static mock constants used), so a collection
+  // taken on the টাকা জমা screen shrinks this list and the totals at once.
+  const { entries, stats } = useMemo(() => {
+    const list = orders
+      .filter((o) => o.status !== 'cancelled' && dueOf(o) > 0)
+      .sort((a, b) => a.deliveryInDays - b.deliveryInDays);
+    return {
+      entries: list,
+      stats: {
+        totalDue: list.reduce((sum, o) => sum + dueOf(o), 0),
+        customerCount: new Set(list.map((o) => o.customerName)).size,
+        over30Due: list
+          .filter((o) => o.deliveryInDays < -30)
+          .reduce((sum, o) => sum + dueOf(o), 0),
+        todayCollection: dashboardStats.todayCollection + sessionCollected,
+      },
+    };
+  }, [orders, sessionCollected]);
 
   const visible = useMemo(() => {
     const q = query.trim();
-    if (!q) return dueEntries;
+    if (!q) return entries;
     const qDigits = digitsOnly(q);
-    return dueEntries.filter(
+    return entries.filter(
       (o) =>
         o.customerName.includes(q) ||
         (qDigits.length > 0 && digitsOnly(o.customerPhone).includes(qDigits)),
     );
-  }, [query]);
+  }, [query, entries]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -74,12 +96,12 @@ export default function DueScreen() {
         <View style={styles.body}>
           <SummaryPanel
             label="মোট বকেয়া"
-            value={takaBn(dueStats.totalDue)}
+            value={takaBn(stats.totalDue)}
             valueColor={colors.amber}
             stats={[
-              { value: `${toBnDigits(dueStats.customerCount)} জন`, label: 'কাস্টমারের কাছে' },
-              { value: takaBn(dueStats.over30Due), label: '৩০ দিনের বেশি পুরনো' },
-              { value: takaBn(dueStats.todayCollection), label: 'আজ আদায়' },
+              { value: `${toBnDigits(stats.customerCount)} জন`, label: 'কাস্টমারের কাছে' },
+              { value: takaBn(stats.over30Due), label: '৩০ দিনের বেশি পুরনো' },
+              { value: takaBn(stats.todayCollection), label: 'আজ আদায়' },
             ]}
           />
 
@@ -128,6 +150,13 @@ export default function DueScreen() {
                     <Text style={styles.age}>{ageOf(order)}</Text>
                   </View>
                   <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      router.push({
+                        pathname: '/collect/[id]',
+                        params: { id: order.id },
+                      } as never);
+                    }}
                     style={({ pressed }) => [
                       styles.payButton,
                       pressed && styles.payButtonPressed,

@@ -370,3 +370,105 @@ customer's full page (summary + measurements + order history).
   customers (3.9KB) and [phone] (4.6KB) bundles emitted alongside the
   existing routes.
 - No git operations, no Supabase.
+
+---
+
+## Package C: অর্ডার বিস্তারিত + রসিদ + টাকা জমা (2026-11-20)
+An order is now a full working page: status moves forward step by step,
+money can be collected against it, and a receipt can be shown — with the
+বকেয়া tab finally reading the live store so collections land everywhere.
+
+### Store — `src/store/orders.ts`
+- `updateStatus(id, status)` — immutable map swap + notify (the order
+  detail's stepper button is the caller).
+- `addPayment(id, amount, method?)` — records a collection: the amount
+  is clamped to the open due (paid never exceeds the bill, due never
+  below 0), added to `advance` (total paid), and appended to the
+  order's `payments` history as `{ amount, dateOffset: 0, method }`.
+  Returns the amount actually recorded. The spec's `addPayment(id,
+  amount)` signature gained an optional `method` so the collect
+  screen's নগদ/বিকাশ/নাগদ choice is kept in the history.
+- Session collections counter + `useSessionCollections()` — money taken
+  through the collect screen this session, added on top of the mock
+  আজকের আদায় constant by the Dashboard band and the বকেয়া summary,
+  so "আজ আদায়" moves too, not just the dues.
+
+### Data — `src/data/mock.ts`
+- `Order` gains optional `payments?: OrderPayment[]` (new exported
+  type). The initial অগ্রিম is deliberately NOT a payments entry — the
+  detail screen derives it as `advance − sum(payments)`, so seed orders
+  (no entries) show their full advance as অগ্রিম.
+- `shop` gains `phone` ('01812-345678') — the receipt header needs one;
+  the mock shop had none.
+- `garmentKeysForLabel(label)` — maps an order's display garment
+  ("শার্ট ও প্যান্ট" → [shirt, pant], "কামিজ" → [salwar]) to garment
+  def keys, used to pick the measurement template / saved measurements
+  on the order detail.
+
+### Screens
+- **অর্ডার বিস্তারিত — `app/order/[id].tsx`** (stack). Header: back,
+  order code, status chip. Status panel: horizontal 5-stage stepper
+  (মাপ → কাটিং → সেলাই → রেডি → ডেলিভারি; done = filled green dot with
+  check + green line, current = primary ring with inner dot, upcoming
+  = muted; stepper labels are shortened — "মাপ"/"ডেলিভারি" — because
+  the full labels don't fit five columns) and a "পরের ধাপে নিন · {next}"
+  primary button advancing via `updateStatus` (hidden once delivered;
+  cancelled orders show a danger note instead of the stepper).
+  Customer panel (avatar, name, phone) taps through to the customer
+  detail. পোশাক ও মাপ panel: measurements from `order.measurements`
+  when the order carries them, else the customer's saved measurements
+  for the garment (compound garments like শার্ট ও প্যান্ট show both
+  blocks with sub-titles), 2-column label/value rows as on the customer
+  detail, design note under a hairline when present, "মাপ সেভ নেই"
+  when neither exists. ডেলিভারি panel: date (আজ/আগামীকাল · calendar
+  date) + কারিগর row. বিল panel: মোট / জমা / বকেয়া (amber, bold)
+  plus payment history — অগ্রিম row ("অর্ডার নেওয়ার সময়") then one
+  row per collection (method · date label, আজ for session ones).
+  Actions: টাকা জমা নিন (primary, only when due > 0) → collect screen;
+  রসিদ (secondary) → receipt; ট্র্যাকিং লিঙ্ক (secondary) toggles an
+  inline primary-tint note with the tracking code (= order code) —
+  the public page itself is Package H.
+- **টাকা জমা — `app/collect/[id].tsx`** (stack; flat route chosen over
+  `app/order/collect/[id].tsx` for a cleaner URL, used consistently).
+  Customer + order panel, বকেয়া big in amber, amount input prefilled
+  with the full due, quick chips (পুরোটা / ৫০০ / ১,০০০), method chips
+  (নগদ default / বিকাশ / নাগদ), live "জমার পর বকেয়া থাকবে" line,
+  inline validation (amount > 0 and ≤ due), জমা নিন → `addPayment`
+  → back. An order with no due shows "এই অর্ডারে কোনো বকেয়া নেই।"
+- **রসিদ — `app/order/receipt/[id].tsx`** (stack). Printable-style
+  white card on paper: shop name/address/phone centered, রসিদ নং
+  (order code), তারিখ (today), customer name/phone, garment, delivery
+  date, bill lines (মোট/জমা/বকেয়া — due amber + bold when open),
+  "ধন্যবাদ! আবার আসবেন।", and a primary-tint tracking box ("অর্ডারের
+  অবস্থা জানতে এই কোডটি রাখুন" + the code). শেয়ার is a visual
+  secondary button (no native share wiring, per scope); back is the
+  header.
+
+### Wiring + Due tab migration
+- Order rows now open the detail everywhere: Orders tab, Dashboard
+  (আজকের ডেলিভারি + upcoming lists), customer detail order history.
+- Customer detail's "টাকা জমা নিন" now collects against the
+  customer's OLDEST due order (earliest delivery offset with due > 0).
+- **বকেয়া tab migrated to the store**: list + summary (মোট বকেয়া /
+  কাস্টমার সংখ্যা / ৩০ দিনের বেশি পুরনো / আজ আদায়) are derived from
+  `useOrders()` with the same rules the static mock constants used;
+  its "জমা নিন" buttons open the collect screen for that row's order
+  (stopPropagation so the row's customer-detail tap doesn't fire).
+  The static `dueEntries`/`dueStats` exports remain in mock.ts but are
+  no longer imported anywhere. কারিগর tab is untouched (still mock).
+
+### Deviations / notes
+- Collect route is `app/collect/[id].tsx`, not `app/order/collect/[id].tsx`
+  (spec allowed either; flat picked and used in all three entry points).
+- The receipt's shop phone is a new mock field (see Data above).
+- আজকের আদায় now = mock constant + session collections (see Store) —
+  after an app restart the session part resets, like all store state,
+  until Supabase lands.
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0, no errors).
+- `npx expo export --platform web` — PASS; three new [id] bundles
+  emitted (order detail 16KB, collect 8KB, receipt 8KB) alongside the
+  existing routes.
+- No git operations, no Supabase.

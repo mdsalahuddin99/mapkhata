@@ -27,6 +27,16 @@ export interface KarigarWork {
   runningLabel?: string;
 }
 
+/** One collection against an order, recorded by the টাকা জমা screen (Package C). */
+export interface OrderPayment {
+  amount: number;
+  /** Day offset from today the collection was taken (0 = আজ). */
+  dateOffset: number;
+  /** নগদ / বিকাশ / নাগদ — as picked on the collect screen. */
+  method?: string;
+  note?: string;
+}
+
 export interface Order {
   id: string;
   code: string;
@@ -37,8 +47,12 @@ export interface Order {
   /** Delivery date as day offset from today (0 = আজ, 1 = আগামীকাল, -1 = গতকাল). */
   deliveryInDays: number;
   total: number;
+  /** Total paid so far: the initial অগ্রিম plus every entry in `payments`. */
   advance: number;
   karigarName: string;
+  /** Collections taken after the order was opened (Package C). The initial
+   *  অগ্রিম is NOT an entry here — it is `advance` minus the sum of these. */
+  payments?: OrderPayment[];
   /** Optional note shown on the বকেয়া list instead of the delivery date. */
   dueNote?: string;
   /** Measurements captured on the নতুন অর্ডার form (field key → value, inches). */
@@ -145,6 +159,22 @@ export const garmentDefs: GarmentDef[] = [
 
 export function garmentDef(key: GarmentKey): GarmentDef {
   return garmentDefs.find((g) => g.key === key) ?? garmentDefs[0];
+}
+
+/**
+ * Display label on an order ("শার্ট ও প্যান্ট", "কামিজ") → garment def
+ * key(s), so the order detail can find the right measurement template /
+ * the customer's saved measurements for that garment.
+ */
+export function garmentKeysForLabel(label: string): GarmentKey[] {
+  const keys: GarmentKey[] = [];
+  if (label.includes('পাঞ্জাবি')) keys.push('panjabi');
+  if (label.includes('শার্ট')) keys.push('shirt');
+  if (label.includes('প্যান্ট')) keys.push('pant');
+  if (label.includes('সালোয়ার') || label.includes('কামিজ')) keys.push('salwar');
+  if (label.includes('ব্লাউজ')) keys.push('blouse');
+  if (label.includes('বোরকা')) keys.push('borka');
+  return keys;
 }
 
 /* ------------------------------------------------------------------ */
@@ -263,6 +293,7 @@ export function hasSavedMeasurements(customer: Customer): boolean {
 export const shop = {
   name: 'নিউ স্টার টেইলার্স',
   area: 'এলিফ্যান্ট রোড, ঢাকা',
+  phone: '01812-345678',
   ownerName: 'মোঃ আব্দুল মালেক',
 };
 
