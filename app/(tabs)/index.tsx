@@ -9,16 +9,17 @@ import {
   dashboardStats,
   deliveryLabel,
   dueOf,
-  orders,
   shop,
   toBnDigits,
 } from '../../src/data/mock';
+import { useOrders } from '../../src/store/orders';
 import { colors, formatTaka, radius, spacing, typography } from '../../src/theme';
 
 /** Amounts on this screen use Bengali digits, balance-style (prototype v1.1). */
 const takaBn = (amount: number) => toBnDigits(formatTaka(amount));
 
 export default function DashboardScreen() {
+  const orders = useOrders();
   const active = orders.filter((o) => o.status !== 'cancelled');
   const todayOrders = active.filter((o) => o.deliveryInDays === 0);
   const upcomingByDay = [1, 2, 3]
@@ -30,6 +31,17 @@ export default function DashboardScreen() {
   const dueCustomerCount = new Set(
     active.filter((o) => dueOf(o) > 0).map((o) => o.customerName),
   ).size;
+  // Stats recomputed from the live store list (same derivations as
+  // mock.dashboardStats) so a newly added order moves the numbers at once.
+  // আজকের আদায় stays the shared mock constant — collections aren't orders.
+  const stats = {
+    todayDeliveries: active.filter((o) => o.deliveryInDays === 0).length,
+    runningOrders: active.filter(
+      (o) => o.status !== 'delivered',
+    ).length,
+    totalDue: active.reduce((sum, o) => sum + dueOf(o), 0),
+    todayCollection: dashboardStats.todayCollection,
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -39,9 +51,9 @@ export default function DashboardScreen() {
           shopSub={shop.area}
           avatarInitial={shop.name.charAt(0)}
           balanceLabel={`মোট বকেয়া (${toBnDigits(dueCustomerCount)} জন)`}
-          balanceValue={takaBn(dashboardStats.totalDue)}
+          balanceValue={takaBn(stats.totalDue)}
           sideLabel="আজকের আদায়"
-          sideValue={takaBn(dashboardStats.todayCollection)}
+          sideValue={takaBn(stats.todayCollection)}
         />
 
         {/* v1.2 white sheet over the band: 12px top corners, overlaps by 10px */}
@@ -53,14 +65,14 @@ export default function DashboardScreen() {
           <MiniStatStrip
             stats={[
               {
-                value: `${toBnDigits(dashboardStats.todayDeliveries)}টি`,
+                value: `${toBnDigits(stats.todayDeliveries)}টি`,
                 label: 'আজকের ডেলিভারি',
               },
               {
-                value: `${toBnDigits(dashboardStats.runningOrders)}টি`,
+                value: `${toBnDigits(stats.runningOrders)}টি`,
                 label: 'চলমান অর্ডার',
               },
-              { value: takaBn(dashboardStats.totalDue), label: 'মোট বকেয়া' },
+              { value: takaBn(stats.totalDue), label: 'মোট বকেয়া' },
             ]}
           />
 

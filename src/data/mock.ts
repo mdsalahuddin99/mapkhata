@@ -41,6 +41,223 @@ export interface Order {
   karigarName: string;
   /** Optional note shown on the বকেয়া list instead of the delivery date. */
   dueNote?: string;
+  /** Measurements captured on the নতুন অর্ডার form (field key → value, inches). */
+  measurements?: Record<string, string>;
+  /** Free-text design note captured on the নতুন অর্ডার form. */
+  designNote?: string;
+}
+
+/* ------------------------------------------------------------------ */
+/* Garments + measurement templates (নতুন অর্ডার form, Package A)      */
+/* ------------------------------------------------------------------ */
+
+export type GarmentKey =
+  | 'panjabi'
+  | 'shirt'
+  | 'pant'
+  | 'salwar'
+  | 'blouse'
+  | 'borka';
+
+export interface MeasurementField {
+  key: string;
+  label: string;
+}
+
+export interface GarmentDef {
+  key: GarmentKey;
+  label: string;
+  fields: MeasurementField[];
+}
+
+export const garmentDefs: GarmentDef[] = [
+  {
+    key: 'panjabi',
+    label: 'পাঞ্জাবি',
+    fields: [
+      { key: 'lomba', label: 'লম্বা' },
+      { key: 'buk', label: 'বুক' },
+      { key: 'pet', label: 'পেট' },
+      { key: 'hata', label: 'হাতা' },
+      { key: 'gola', label: 'গলা' },
+      { key: 'kandh', label: 'কাঁধ' },
+      { key: 'kof', label: 'কফ' },
+    ],
+  },
+  {
+    key: 'shirt',
+    label: 'শার্ট',
+    fields: [
+      { key: 'lomba', label: 'লম্বা' },
+      { key: 'buk', label: 'বুক' },
+      { key: 'pet', label: 'পেট' },
+      { key: 'hata', label: 'হাতা' },
+      { key: 'gola', label: 'গলা' },
+      { key: 'kandh', label: 'কাঁধ' },
+    ],
+  },
+  {
+    key: 'pant',
+    label: 'প্যান্ট',
+    fields: [
+      { key: 'lomba', label: 'লম্বা' },
+      { key: 'komor', label: 'কোমর' },
+      { key: 'hip', label: 'হিপ' },
+      { key: 'thai', label: 'থাই' },
+      { key: 'nicherGher', label: 'নিচের ঘের' },
+    ],
+  },
+  {
+    key: 'salwar',
+    label: 'সালোয়ার কামিজ',
+    fields: [
+      { key: 'kamizLomba', label: 'কামিজ লম্বা' },
+      { key: 'buk', label: 'বুক' },
+      { key: 'komor', label: 'কোমর' },
+      { key: 'hata', label: 'হাতা' },
+      { key: 'gola', label: 'গলা' },
+      { key: 'salwarLomba', label: 'সালোয়ার লম্বা' },
+      { key: 'salwarKomor', label: 'সালোয়ার কোমর' },
+    ],
+  },
+  {
+    key: 'blouse',
+    label: 'ব্লাউজ',
+    fields: [
+      { key: 'lomba', label: 'লম্বা' },
+      { key: 'buk', label: 'বুক' },
+      { key: 'komor', label: 'কোমর' },
+      { key: 'hata', label: 'হাতা' },
+      { key: 'gola', label: 'গলা' },
+    ],
+  },
+  {
+    key: 'borka',
+    label: 'বোরকা',
+    fields: [
+      { key: 'lomba', label: 'লম্বা' },
+      { key: 'buk', label: 'বুক' },
+      { key: 'hata', label: 'হাতা' },
+      { key: 'gola', label: 'গলা' },
+    ],
+  },
+];
+
+export function garmentDef(key: GarmentKey): GarmentDef {
+  return garmentDefs.find((g) => g.key === key) ?? garmentDefs[0];
+}
+
+/* ------------------------------------------------------------------ */
+/* Customers + saved measurements                                      */
+/*                                                                     */
+/* The mock orders carry customer name/phone inline; this list is the  */
+/* "মাপের খাতা" view of the same people — who has saved measurements   */
+/* for which garment. Values are inches, as strings (form input text). */
+/* ------------------------------------------------------------------ */
+
+export interface Customer {
+  name: string;
+  /** Display format, same as on the orders: "01712-445566". */
+  phone: string;
+  measurements: Partial<Record<GarmentKey, Record<string, string>>>;
+}
+
+export const customers: Customer[] = [
+  {
+    name: 'রহিম উদ্দিন',
+    phone: '01712-445566',
+    measurements: {
+      panjabi: { lomba: '42', buk: '40', pet: '38', hata: '23.5', gola: '15.5', kandh: '17.5', kof: '9.5' },
+    },
+  },
+  {
+    name: 'ফাতেমা বেগম',
+    phone: '01819-223344',
+    measurements: {
+      salwar: { kamizLomba: '44', buk: '36', komor: '32', hata: '21', gola: '14', salwarLomba: '38', salwarKomor: '28' },
+    },
+  },
+  {
+    name: 'তানভীর আহমেদ',
+    phone: '01611-778899',
+    measurements: {
+      shirt: { lomba: '29', buk: '40', pet: '38', hata: '24', gola: '15.5', kandh: '17.5' },
+      pant: { lomba: '40', komor: '34', hip: '40', thai: '24', nicherGher: '15' },
+    },
+  },
+  {
+    name: 'আয়েশা সিদ্দিকা',
+    phone: '01755-901234',
+    measurements: {
+      blouse: { lomba: '15', buk: '34', komor: '30', hata: '10', gola: '13' },
+    },
+  },
+  {
+    name: 'মোঃ কামাল হোসেন',
+    phone: '01913-667788',
+    measurements: {
+      panjabi: { lomba: '41', buk: '42', pet: '40', hata: '24', gola: '16', kandh: '18', kof: '10' },
+    },
+  },
+  {
+    name: 'শারমিন আক্তার',
+    phone: '01842-112233',
+    measurements: {
+      salwar: { kamizLomba: '43', buk: '35', komor: '31', hata: '20.5', gola: '13.5', salwarLomba: '37', salwarKomor: '27' },
+    },
+  },
+  {
+    name: 'নুসরাত জাহান',
+    phone: '01798-334455',
+    measurements: {
+      salwar: { kamizLomba: '44', buk: '34', komor: '30', hata: '21', gola: '13.5', salwarLomba: '38', salwarKomor: '26' },
+    },
+  },
+  {
+    name: 'হাসান মাহমুদ',
+    phone: '01552-990011',
+    measurements: {
+      pant: { lomba: '41', komor: '36', hip: '42', thai: '25', nicherGher: '16' },
+    },
+  },
+  {
+    name: 'রুমানা পারভীন',
+    phone: '01676-221100',
+    measurements: {
+      borka: { lomba: '54', buk: '42', hata: '22', gola: '14' },
+    },
+  },
+  // No saved measurements yet — the "নতুন কাস্টমার" path in the form.
+  { name: 'ইমরান হোসেন', phone: '01720-556677', measurements: {} },
+  { name: 'সালমা খাতুন', phone: '01830-445566', measurements: {} },
+  { name: 'জাকির হোসেন', phone: '01925-778800', measurements: {} },
+];
+
+const phoneDigits = (s: string) => s.replace(/[^0-9]/g, '');
+
+/** Exact customer match for a typed phone number (digits compared). */
+export function findCustomerByPhone(phone: string): Customer | undefined {
+  const digits = phoneDigits(phone);
+  if (digits.length < 11) return undefined;
+  return customers.find((c) => phoneDigits(c.phone) === digits);
+}
+
+/** Suggestion list for the নতুন অর্ডার form: name or phone fragment. */
+export function searchCustomers(query: string): Customer[] {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  const qDigits = phoneDigits(q);
+  return customers.filter(
+    (c) =>
+      c.name.includes(q) ||
+      (qDigits.length >= 2 && phoneDigits(c.phone).includes(qDigits)),
+  );
+}
+
+export function hasSavedMeasurements(customer: Customer): boolean {
+  return Object.values(customer.measurements).some(
+    (m) => m && Object.keys(m).length > 0,
+  );
 }
 
 export const shop = {

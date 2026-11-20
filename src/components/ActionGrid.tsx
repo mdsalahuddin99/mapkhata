@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import {
   BadgePercent,
   BarChart3,
@@ -23,6 +24,8 @@ interface GridItem {
   tint: string;
   iconColor: string;
   icon: React.ReactNode;
+  /** When set, tapping the cell navigates to this route. */
+  route?: string;
 }
 
 const ICON_SIZE = 21;
@@ -34,6 +37,7 @@ const mainItems: GridItem[] = [
     tint: colors.primaryTint,
     iconColor: colors.primary,
     icon: <Plus size={ICON_SIZE} color={colors.primary} strokeWidth={2.2} />,
+    route: '/new-order',
   },
   {
     label: 'মাপ খুঁজুন',
@@ -107,8 +111,10 @@ const moreItems: GridItem[] = [
 ];
 
 function GridCell({ item }: { item: GridItem }) {
+  const router = useRouter();
   return (
     <Pressable
+      onPress={item.route ? () => router.push(item.route as never) : undefined}
       style={({ pressed }) => [styles.cell, pressed && styles.cellPressed]}
       accessibilityLabel={item.label}
     >
@@ -124,8 +130,9 @@ function GridCell({ item }: { item: GridItem }) {
  * v1.2 home action grid (DESIGN.md v1.2 — the owner's limited exception to
  * the no-icon-grid rule, home screen only): 4 columns of 48px circular
  * tint-backed icon buttons with short Bangla labels, in the muted palette.
- * Items are visual for now — no navigation targets exist yet. The
- * "আরো দেখুন" pill expands a second row of placeholder actions.
+ * Package A wired নতুন অর্ডার → /new-order; the other items are still
+ * visual for now. The "আরো দেখুন" pill expands a second row of
+ * placeholder actions.
  */
 export function ActionGrid() {
   const [expanded, setExpanded] = useState(false);

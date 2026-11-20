@@ -230,3 +230,88 @@ no shadows/gradients.
 - `npx expo export --platform web` — PASS; due bundle 4.9KB, karigar
   bundle 5.2KB emitted alongside index/orders.
 - No git init, no Supabase — unchanged.
+
+---
+
+## Package A: নতুন অর্ডার flow + shared order store (2026-11-20)
+The order book is now writable: a shared in-memory store, a full
+নতুন অর্ডার form, and both entry points wired.
+
+### Store — `src/store/orders.ts`
+- Module-level store seeded from the mock orders, exposed via
+  `useSyncExternalStore`: `useOrders()` subscribes a screen to the live
+  list; `addOrder(input)` prepends a new order (status মাপ নেওয়া,
+  code from `nextOrderCode()` — max MK-number + 1, so the first new
+  order is MK-1052) and notifies all listeners with an immutable array
+  swap. No context/provider needed; the module is the seam where
+  Supabase replaces the seed later.
+- Refactored to read from the store: Orders tab (list + filters +
+  search) and Dashboard (today's deliveries, upcoming-by-day lists).
+  Dashboard stats are now recomputed from the store list with the same
+  derivations as `mock.dashboardStats` (todayDeliveries / runningOrders
+  / totalDue), so a new order moves the band + mini-strip numbers
+  immediately; আজকের আদায় stays the shared mock constant (collections
+  are not orders). বকেয়া / কারিগর tabs still read the static mock
+  derivations (`dueEntries`/`dueStats`) — store migration for those
+  lists is a later package.
+
+### Data — `src/data/mock.ts`
+- mock.ts had NO measurements/customers structure (orders carry
+  name/phone inline), so Package A adds the "মাপের খাতা" layer:
+  `garmentDefs` (6 garments with the exact field sets: পাঞ্জাবি 7,
+  শার্ট 6, প্যান্ট 5, সালোয়ার কামিজ 7, ব্লাউজ 5, বোরকা 4) and a
+  `customers` list covering all 12 mock customers — 9 with saved
+  measurements for their usual garment(s) (তানভীর has শার্ট + প্যান্ট),
+  3 with none (নতুন কাস্টমার path). Helpers: `findCustomerByPhone`
+  (exact digit match), `searchCustomers` (name/phone fragment),
+  `hasSavedMeasurements`. `Order` gains optional `measurements` /
+  `designNote` so the form's data is kept on the created order.
+
+### Screen — `app/new-order.tsx` (stack screen, headerShown off)
+Single scroll form, white panels on paper, 44px inputs (paper-tinted
+inside white panels so the field reads against the panel; focus =
+primary border, no glow), fixed footer with the save button.
+- হেডার: white bar — back chevron, "নতুন অর্ডার", next order code in a
+  slate chip (live from the store).
+- কাস্টমার: phone field — typing a full mock number auto-fills the
+  name and selects the customer; a suggestion list (name/phone
+  fragment, max 4, "মাপ আছে" tag) appears under the fields while
+  typing. Selected customer with saved measurements shows a primary
+  "আগের মাপ আছে" note; without, a muted "মাপ প্রথমবার নেওয়া হচ্ছে".
+- পোশাক: garment chips (the 6 defs) switch the measurement template.
+- মাপ: labelled numeric inputs (decimal-pad) in a 2-column grid,
+  pre-filled from the customer's saved measurement for that garment
+  (per-garment typed cache wins once edited; switching customer resets
+  the cache; "আগের মাপ বসানো হয়েছে" note while untouched). ডিজাইন নোট
+  multiline below.
+- ডেলিভারি ও বিল: delivery chips ৩/৫/৭ দিনে or "তারিখ লিখুন" — a
+  free-text date ("২৭ নভেম্বর") parsed best-effort (Bengali digits +
+  month names → offset; unparseable falls back to 7 days with an
+  inline note). Live line shows the resolved delivery date. মোট টাকা /
+  জমা (অগ্রিম) inputs; বকেয়া computed live under a hairline (amber
+  when > 0, muted at ০). কারিগর chips optional ("পরে ঠিক করব" = none).
+- সেভ: validates name + total > 0 (inline danger message above the
+  button otherwise), adds the order via the store, then
+  `router.replace` to the Orders tab where it appears at the top.
+- Entry points wired: dashboard grid "নতুন অর্ডার" cell (ActionGrid
+  gained an optional per-item `route`) and the Orders header button.
+  Tab-bar center button is NOT in this package (per scope).
+
+### Deviations / notes
+- Inputs inside white panels use the paper background instead of pure
+  white (DESIGN.md says white inputs — on a white panel they would be
+  invisible except for the hairline; the paper tint keeps the locked
+  palette and the field boundary readable).
+- The বকেয়া tab's summary/list still derive from the static mock
+  constants, so a brand-new order's due appears in Orders + Dashboard
+  totals immediately but joins the বকেয়া list only when that tab is
+  migrated to the store.
+- Custom delivery dates are parsed only in "day + Bengali month name"
+  form; anything else falls back to 7 days with a visible note.
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0, no errors).
+- `npx expo export --platform web` — PASS; new-order bundle 15KB
+  emitted alongside index/orders/due/karigar.
+- No git commits/pushes (coordinator handles git), no Supabase.

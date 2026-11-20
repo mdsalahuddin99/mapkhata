@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { Plus, Search } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import {
@@ -12,7 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../../src/components/Buttons';
 import { LedgerPanel, LedgerRow } from '../../src/components/LedgerRow';
 import { ScreenHeader } from '../../src/components/ScreenHeader';
-import { deliveryLabel, orders, toBnDigits } from '../../src/data/mock';
+import { deliveryLabel, toBnDigits } from '../../src/data/mock';
+import { useOrders } from '../../src/store/orders';
 import {
   colors,
   controlHeight,
@@ -37,6 +39,8 @@ const filters: { key: FilterKey; label: string }[] = [
 const digitsOnly = (s: string) => s.replace(/[^0-9]/g, '');
 
 export default function OrdersScreen() {
+  const router = useRouter();
+  const orders = useOrders();
   const [active, setActive] = useState<FilterKey>('all');
   const [query, setQuery] = useState('');
 
@@ -53,7 +57,7 @@ export default function OrdersScreen() {
         (qDigits.length > 0 && digitsOnly(o.customerPhone).includes(qDigits))
       );
     });
-  }, [active, query]);
+  }, [active, query, orders]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -65,6 +69,7 @@ export default function OrdersScreen() {
             <PrimaryButton
               compact
               label="নতুন অর্ডার"
+              onPress={() => router.push('/new-order')}
               icon={<Plus size={18} color="#FFFFFF" strokeWidth={2.2} />}
             />
           }
