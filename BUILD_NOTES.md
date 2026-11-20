@@ -868,3 +868,136 @@ matrix (paper/white/tint backgrounds only, amber only on due figures,
   emitted and the entry bundle registers both `./track/[code].tsx`
   and `./r/[code].tsx`.
 - No git operations, no Supabase.
+
+## Package I: সুপার অ্যাডমিন — SaaS অপারেটর প্যানেল (2026-11-20)
+
+The last screen package: the panel the MapKhata OWNER himself uses
+to run the SaaS — which shops exist, who pays, whose plan is ending,
+whose SMS balance is low. These are OPERATOR pages, not shop pages:
+routes under `app/admin/`, reachable by URL (/admin), no auth gating
+in this demo build, clearly labelled as demo on screen. Same design
+system (same product family), with a slightly more desktop-web feel:
+content sits in a centred column, maxWidth 720.
+
+### Data — `src/data/admin.ts` (new)
+- `AdminShop` seed: 8 shops across 8 districts (ঢাকা, ব্রাহ্মণবাড়িয়া,
+  কুমিল্লা, চট্টগ্রাম, সিলেট, রাজশাহী, খুলনা, ময়মনসিংহ) — name, owner,
+  phone, plan ('pro' | 'free' | 'trial'), status ('active' |
+  'expired' | 'trial'), joinedDaysAgo, renewalInDays, ordersThisMonth,
+  smsBalance, lastActiveDaysAgo. The demo shop (নিউ স্টার টেইলার্স)
+  is one of them, consistent with its own screens: প্রো plan, renewal
+  +18 days, SMS balance 120 (Package G figures).
+- EVERY figure on the admin screens is derived from this list in
+  code: paying shops = প্রো + active (৪টি), MRR = paying × ৳৪৯৯
+  (`PRO_PRICE`, the Package F price) = ৳১,৯৯৬, ট্রায়ালে ২টি,
+  expiring = renewalInDays ≤ 7 sorted soonest first (খুলনা expired
+  −৪, আল-আমিন ৩, রাজশাহী ট্রায়াল ৫, চট্টলা ৬), low SMS =
+  smsBalance < 30 (সিলেট ০, খুলনা ১২, আল-আমিন ২৫), recent = joined
+  ascending. The ONE exception is SMS pack income: no pack-sales
+  ledger exists in the demo data, so `SMS_INCOME_THIS_MONTH` (৳১,৮৫০)
+  is a seeded constant — commented as such in the data file and kept
+  on its own line on the dashboard, never blended into the derived
+  MRR (the two are only added on the labelled সর্বমোট row).
+- Shared bits in `src/components/AdminBits.tsx`: `PlanChip` (প্রো =
+  primary tint, ফ্রি = slate tint, ট্রায়াল = mustard tint, StatusChip
+  build), `AdminStatusLine` (dot + সক্রিয়/ট্রায়ালে/মেয়াদ শেষ),
+  `AdminShopRow` (avatar + name + জেলা · মালিক + caller-supplied
+  right column, inside a LedgerPanel), and the 720px column style.
+
+### Screens
+- **অ্যাডমিন ড্যাশবোর্ড — `app/admin/index.tsx`**. WhiteHeader
+  "মাপখাতা অ্যাডমিন" + a faint demo note. SummaryPanel: এই মাসের আয়
+  (সাবস্ক্রিপশন) big = MRR; stats মোট দোকান ৮টি / সক্রিয় প্রো ৪টি /
+  ট্রায়ালে ২টি. Income panel: SMS প্যাক বিক্রি (seeded constant) and
+  সর্বমোট আয় rows. Then "মেয়াদ শেষ হচ্ছে — ৭ দিনের মধ্যে" (plan
+  chip + renewal label — amber, danger once expired), "SMS ব্যালেন্স
+  কম" (balance in amber), and "নতুন দোকান" (recent five, জেলা ·
+  যোগ দেওয়ার label + plan chip) — every row taps to the shop
+  detail — plus a "সব দোকান দেখুন" link to the directory.
+- **সব দোকান — `app/admin/shops.tsx`**. BackHeader, SearchField
+  (name / district / owner / phone digits), plan filter chips
+  (সব/প্রো/ফ্রি/ট্রায়াল, orders-tab chip style), count line, ledger
+  rows: avatar, name, জেলা · মালিক meta, right = plan chip over the
+  status line. Tap → detail.
+- **দোকান বিস্তারিত — `app/admin/shop/[id].tsx`**. Identity panel
+  (56px avatar, name, মালিক, ফোন · জেলা, plan chip + status).
+  "সাবস্ক্রিপশন ও ব্যবহার" panel of hairline label/value rows:
+  প্ল্যান, শুরু (calendar date + "N দিন আগে যোগ দিয়েছে"), নবায়ন
+  বাকি (danger when expired, amber within 7 days), এই মাসের অর্ডার,
+  SMS ব্যালেন্স (amber under 30), শেষ সক্রিয়. Actions: মেয়াদ
+  বাড়ান (primary), SMS যোগ করুন (secondary), দোকান বন্ধ করুন
+  (danger text). Unknown id → a friendly not-found panel.
+
+### Deviations / notes
+- **All admin actions are visual** (press states only): extending a
+  plan, topping up SMS and suspending a shop change nothing in this
+  demo — they land with the platform backend, like auth did in
+  Package F.
+- **The shop-hub entry link is PREVIEW ONLY.** `app/shop.tsx`'s
+  footer gained one discreet muted row — "অপারেটর প্যানেল" (Shield
+  icon, faint text) under the লগআউট button → /admin. Real shops must
+  never see an operator entry inside their own app: **this link must
+  be removed, or the panel split into a separate operator build,
+  before launch.** It exists so the owner can open his panel from
+  the demo build.
+- The admin data is a separate seed (`src/data/admin.ts`), not the
+  shop store — operator figures describe the platform, and the demo
+  shop's row is pinned to the mock shop's own published figures so
+  the two views agree.
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0, no errors).
+- `npx expo export --platform web` — PASS. The entry bundle
+  registers all three new routes (`./admin/index.tsx`,
+  `./admin/shops.tsx`, `./admin/shop/[id].tsx`); the admin dashboard
+  and shops bundles are emitted (basename-named `index-*.js` /
+  `shops-*.js`, referencing the admin data in the shared chunk) and
+  the [id] bundle count rises to six with the shop detail.
+- No git operations, no Supabase.
+
+---
+
+## All screen packages A–I complete (2026-11-20)
+
+Every planned screen of the demo build now exists — 32 routes:
+
+**ট্যাব (5)**
+- `/` ড্যাশবোর্ড · `/orders` অর্ডার · `/measurements` মাপের খাতা ·
+  `/due` বকেয়া · `/karigar` কারিগর
+
+**অনবোর্ডিং (Package F, 4)**
+- `/login` · `/otp` · `/setup` দোকান সেটআপ · `/plan` প্ল্যান বাছাই
+
+**অর্ডার ও কাস্টমার (Packages A–C, 7)**
+- `/new-order` নতুন অর্ডার · `/order/[id]` অর্ডার বিস্তারিত ·
+  `/order/receipt/[id]` রসিদ · `/collect/[id]` টাকা জমা ·
+  `/customers` কাস্টমার তালিকা · `/customer/[phone]` কাস্টমার
+  বিস্তারিত
+
+**কারিগর (Package D, 3)**
+- `/karigar/[id]` কারিগর বিস্তারিত · `/karigar/new` নতুন কারিগর ·
+  `/karigar/pay/[id]` কারিগর পেমেন্ট
+
+**দোকান ও সেটিংস (Package G, 7)**
+- `/shop` দোকান হাব · `/shop/profile` প্রোফাইল · `/shop/staff`
+  স্টাফ · `/shop/staff-new` স্টাফ যোগ · `/shop/subscription`
+  সাবস্ক্রিপশন ও SMS · `/notifications` নোটিফিকেশন · `/search`
+  গ্লোবাল সার্চ
+
+**রিপোর্ট (Package E, 1)**
+- `/reports` রিপোর্ট
+
+**কাস্টমার পাবলিক পেজ (Package H, 2)**
+- `/track/[code]` অর্ডার ট্র্যাকিং · `/r/[code]` পাবলিক রসিদ
+
+**সুপার অ্যাডমিন (Package I, 3)**
+- `/admin` অ্যাডমিন ড্যাশবোর্ড · `/admin/shops` সব দোকান ·
+  `/admin/shop/[id]` দোকান বিস্তারিত
+
+What remains is not screens but the real backend: Supabase (shops /
+customers / measurements / karigars / orders with RLS by shop_id),
+phone OTP auth replacing the Package F demo flow, the SMS gateway
+behind the notification + pack flows, and payment for plan/SMS
+purchases — plus removing the preview-only operator link from the
+shop hub (see Package I notes).

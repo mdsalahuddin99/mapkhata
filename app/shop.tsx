@@ -5,6 +5,7 @@ import {
   CreditCard,
   HelpCircle,
   LogOut,
+  Shield,
   Store,
   Users,
 } from 'lucide-react-native';
@@ -160,6 +161,21 @@ export default function ShopHubScreen() {
             <Text style={styles.logoutText}>লগআউট</Text>
           </Pressable>
 
+          {/* Operator (superadmin) preview entry — Package I. PREVIEW
+              ONLY: shops never see this in production; it exists so the
+              owner can open his own /admin panel from the demo build. */}
+          <Pressable
+            onPress={() => router.push('/admin' as never)}
+            style={({ pressed }) => [
+              styles.operatorRow,
+              pressed && styles.pressed,
+            ]}
+            accessibilityLabel="অপারেটর প্যানেল"
+          >
+            <Shield size={14} color={colors.textFaint} strokeWidth={2} />
+            <Text style={styles.operatorText}>অপারেটর প্যানেল</Text>
+          </Pressable>
+
           <View style={styles.footerSpace} />
         </View>
       </ScrollView>
@@ -254,5 +270,16 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   logoutText: { ...typography.bodySemiBold, color: colors.danger },
+  operatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs + 2,
+    alignSelf: 'center',
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  operatorText: { ...typography.label, color: colors.textFaint },
   footerSpace: { height: spacing.lg },
 });
