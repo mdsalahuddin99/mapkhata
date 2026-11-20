@@ -64,6 +64,8 @@ export default function DashboardScreen() {
           sideLabel="আজকের আদায়"
           sideValue={takaBn(stats.todayCollection)}
           onAvatarPress={() => router.push('/login' as never)}
+          onSearchPress={() => router.push('/search' as never)}
+          onBellPress={() => router.push('/notifications' as never)}
         />
 
         {/* v1.2 white sheet over the band: 12px top corners, overlaps by 10px */}

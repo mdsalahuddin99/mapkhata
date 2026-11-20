@@ -83,6 +83,7 @@ const mainItems: GridItem[] = [
     tint: colors.roseTint,
     iconColor: colors.rose,
     icon: <Store size={ICON_SIZE} color={colors.rose} strokeWidth={ICON_STROKE} />,
+    route: '/shop',
   },
 ];
 
@@ -110,6 +111,7 @@ const moreItems: GridItem[] = [
     tint: colors.primaryTint,
     iconColor: colors.primary,
     icon: <Settings size={ICON_SIZE} color={colors.primary} strokeWidth={ICON_STROKE} />,
+    route: '/shop',
   },
 ];
 
@@ -135,7 +137,8 @@ function GridCell({ item }: { item: GridItem }) {
  * tint-backed icon buttons with short Bangla labels, in the muted palette.
  * Package A wired নতুন অর্ডার → /new-order; Package B wired
  * মাপ খুঁজুন → মাপ tab and কাস্টমার → /customers; Package E wired
- * রিপোর্ট → /reports; the rest are still visual for now. The
+ * রিপোর্ট → /reports; Package G wired দোকান + সেটিংস → /shop (the
+ * settings hub). The rest are still visual for now. The
  * "আরো দেখুন" pill expands a second row of placeholder actions.
  */
 export function ActionGrid() {

@@ -297,6 +297,55 @@ export const shop = {
   ownerName: 'মোঃ আব্দুল মালেক',
 };
 
+/* ------------------------------------------------------------------ */
+/* Staff (Package G) — the people who run the shop counter: manager,   */
+/* cutting master, assistant. NOT the karigars: karigars are paid per  */
+/* piece and live in their own list/store (কারিগর ট্যাব). Staff rows     */
+/* carry app permissions instead of piece rates.                       */
+/* ------------------------------------------------------------------ */
+
+export interface StaffPermissions {
+  /** অর্ডার নেওয়া */
+  orders: boolean;
+  /** টাকা জমা নেওয়া */
+  collect: boolean;
+  /** রিপোর্ট দেখা */
+  reports: boolean;
+}
+
+export interface Staff {
+  id: string;
+  name: string;
+  /** Display format, same as customers: "01733-221100". */
+  phone: string;
+  role: string;
+  permissions: StaffPermissions;
+}
+
+export const staff: Staff[] = [
+  {
+    id: 's1',
+    name: 'আরিফুল ইসলাম',
+    phone: '01733-221100',
+    role: 'ম্যানেজার',
+    permissions: { orders: true, collect: true, reports: true },
+  },
+  {
+    id: 's2',
+    name: 'সুমন আহমেদ',
+    phone: '01622-334455',
+    role: 'কাটিং মাস্টার',
+    permissions: { orders: true, collect: false, reports: false },
+  },
+  {
+    id: 's3',
+    name: 'নাজমুল হাসান',
+    phone: '01944-556677',
+    role: 'সহকারী',
+    permissions: { orders: true, collect: false, reports: false },
+  },
+];
+
 export const karigars: Karigar[] = [
   { id: 'k1', name: 'মোঃ সেলিম', skill: 'কাটিং মাস্টার', runningJobs: 4, completedPieces: 38, wageDue: 4200, monthlyPieces: 12, monthlyEarned: 6300 },
   { id: 'k2', name: 'আব্দুল করিম', skill: 'সেলাই কারিগর', runningJobs: 3, completedPieces: 31, wageDue: 3150, monthlyPieces: 11, monthlyEarned: 5400 },

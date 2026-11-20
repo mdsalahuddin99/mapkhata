@@ -18,6 +18,10 @@ interface BandHeaderProps {
   sideValue: string;
   /** Optional — makes the avatar a button (Package F: entry to /login). */
   onAvatarPress?: () => void;
+  /** Optional — wires the band's search button (Package G: /search). */
+  onSearchPress?: () => void;
+  /** Optional — wires the band's bell button (Package G: /notifications). */
+  onBellPress?: () => void;
 }
 
 /**
@@ -38,6 +42,8 @@ export function BandHeader({
   sideLabel,
   sideValue,
   onAvatarPress,
+  onSearchPress,
+  onBellPress,
 }: BandHeaderProps) {
   const [revealed, setRevealed] = useState(false);
 
@@ -67,12 +73,14 @@ export function BandHeader({
         </View>
         <View style={styles.iconRow}>
           <Pressable
+            onPress={onSearchPress}
             style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
             accessibilityLabel="খুঁজুন"
           >
             <Search size={17} color={colors.onPrimary} strokeWidth={2} />
           </Pressable>
           <Pressable
+            onPress={onBellPress}
             style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
             accessibilityLabel="নোটিফিকেশন"
           >

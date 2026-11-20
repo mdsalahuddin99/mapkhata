@@ -716,3 +716,102 @@ the screens' shape.
 - `npx expo export --platform web` — PASS; login, otp, setup and
   plan bundles all emitted alongside the existing routes.
 - No git operations, no Supabase.
+
+## Package G: সেটিংস প্যাকেজ — দোকান হাব, প্রোফাইল, স্টাফ, সাবস্ক্রিপশন/SMS, নোটিফিকেশন, সার্চ (2026-11-20)
+
+The shop's back office is complete as UI: a settings hub with five
+destinations, plus notifications and a global search wired into the
+dashboard band. Everything follows DESIGN.md incl. the v1.3 colour
+matrix (paper/white/tint backgrounds only, amber only on due figures,
+≤3 colour families per screen, radius ≤8 outside the allowed circles).
+
+### Screens
+- **দোকান হাব — `app/shop.tsx`** (stack). Identity panel: 56px logo
+  circle (primary tint, shop initial), shop name + mustard "প্রো"
+  plan badge, owner and phone/area meta lines. Settings list in one
+  LedgerPanel — ledger rows with a small tint icon circle, label, one
+  meta line, chevron: দোকানের প্রোফাইল → /shop/profile; স্টাফ →
+  /shop/staff; সাবস্ক্রিপশন ও SMS → /shop/subscription; নোটিফিকেশন →
+  /notifications; সাহায্য (visual row, no route). Footer: centered
+  "মাপখাতা v0.1.0" + a danger-text লগআউট button → replace /login.
+  Wired from BOTH dashboard grid cells: দোকান (main grid) and সেটিংস
+  (expanded grid) now carry `route: '/shop'` in ActionGrid.
+- **প্রোফাইল — `app/shop/profile.tsx`**. LabeledInput form in one
+  white panel, prefilled from the mock shop: নাম, মালিক, ফোন,
+  ঠিকানা/বাজার + জেলা (split from `shop.area` "এলিফ্যান্ট রোড,
+  ঢাকা"), ধরন SelectChips (টেইলার্স / বুটিক / দুটোই). সেভ shows the
+  inline "সেভ হয়েছে" note (primary, check icon) and goes back after
+  a beat. **Local state only — there is no shop store yet, so edits
+  do not persist or reach the dashboard band; persistence arrives
+  with Supabase.**
+- **স্টাফ — `app/shop/staff.tsx` + `app/shop/staff-new.tsx`**.
+  List reads the new staff store: avatar rows (name, "ভূমিকা · ফোন"
+  meta, Bengali digits) with a section-row "+ স্টাফ যোগ" primary
+  button; a footnote states the boundary — কারিগররা স্টাফ নন, their
+  piece-rate হিসাব stays in the কারিগর ট্যাব. The form: নাম
+  (required, inline danger error via LabeledInput), মোবাইল, ভূমিকা
+  SelectChips (ম্যানেজার / কাটিং মাস্টার / সহকারী), and an অনুমতি
+  panel of RN Switch rows (অর্ডার নেওয়া default on, টাকা জমা,
+  রিপোর্ট দেখা; Switch track = primary when on, hairline when off).
+  Save → `addStaff` → back; the new member is on the list at once.
+- **সাবস্ক্রিপশন ও SMS — `app/shop/subscription.tsx`**. Plan panel:
+  প্রো প্ল্যান + ৳৪৯৯/মাস, মেয়াদ শেষ = today + 18 days
+  (`fullDateLabel`), এই মাসে ব্যবহৃত অর্ডার counted live from the
+  orders store (this month's delivery window, the Package E
+  derivation — ১২টি on the seed) with a flat progress bar (primary
+  fill on a primary-tint track) read against the ফ্রি limit of ৩০,
+  captioned "প্রো-তে অসীম". SMS SummaryPanel: ব্যালেন্স ১২০টি big;
+  stats এই মাসে পাঠানো ৪৬টি / কনফার্ম ২৮টি / রেডি ১৮টি (28 + 18 =
+  46); per-SMS cost note under the panel (৳০.৬০ small pack, ৳০.৫০
+  large). Pack SelectChips (১০০টি · ৳৬০ / ৫০০টি · ৳২৭৫ / ১০০০টি ·
+  ৳৫০০) + কিনুন button — visual only: pressing shows the inline
+  primary-tint note "পেমেন্ট গেটওয়ে শীঘ্রই আসছে". প্ল্যান বদলান
+  ledger row → /plan.
+- **নোটিফিকেশন — `app/notifications.tsx`**. Derived live: today's
+  undelivered orders from the orders store ("আজ ডেলিভারি: নাম —
+  পোশাক", code · status meta, Truck icon, "আজ সকাল"), dues older
+  than 30 days ("পুরনো বকেয়া: নাম", amount · days, Wallet/amber,
+  "গতকাল"), one karigar wage-due summary row from the karigar store
+  (মোট ৳১১,৫৫০ · ৪ জন). Plus two seeded system items (SMS ব্যালেন্স
+  কম, নতুন ফিচার). Rows: 36px tint icon circle, title, one meta
+  line, right column with time label and — on the first two rows —
+  an 8px primary unread dot. "সব পড়া হয়েছে" text button above the
+  list clears the dots (local state).
+- **গ্লোবাল সার্চ — `app/search.tsx`**. Prominent SearchField; a
+  query under 2 characters shows only the hint line. Grouped
+  sections: কাস্টমার (mock customers by name/phone digits → customer
+  detail), অর্ডার (orders store by code — Latin or digit fragment —
+  or customer name; LedgerRow with status → order detail), কারিগর
+  (karigar store by name → karigar detail). No hits → the one-line
+  empty state "কিছু পাওয়া যায়নি।"
+
+### Store + data
+- `src/store/staff.ts` (new) — mirrors the karigar store pattern
+  (module state, `useSyncExternalStore`, immutable append):
+  `useStaff()` / `addStaff({name, phone, role, permissions})`.
+- `src/data/mock.ts` — `Staff` / `StaffPermissions` types and a
+  3-person `staff` seed (ম্যানেজার আরিফুল ইসলাম — all permissions;
+  কাটিং মাস্টার সুমন আহমেদ; সহকারী নাজমুল হাসান — orders only),
+  with a comment pinning the staff ≠ karigar boundary.
+- `BandHeader` gained optional `onSearchPress` / `onBellPress`
+  props; the dashboard wires search → /search and bell →
+  /notifications. Without the props the buttons stay visual, as
+  before.
+
+### Deviations / notes
+- The profile's ঠিকানা/জেলা are one mock field (`shop.area`) split
+  on the comma — a real shop record will carry them separately.
+- The subscription usage bar needs a denominator; প্রো is unlimited,
+  so the bar is drawn against the ফ্রি plan's ৩০-order limit and
+  labelled as such (same honesty approach as Package E's proxies).
+- সাহায্য on the hub and the bell/search buttons' pressed states are
+  visual; there is no help screen in this package's scope.
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0, no errors; one import fix during
+  the run: `statusMeta` comes from theme, not mock).
+- `npx expo export --platform web` — PASS; new bundles emitted:
+  shop 6.2KB, subscription 7.2KB, search 4.5KB, staff-new 4.3KB,
+  profile 3.5KB, staff 2.8KB, notifications (bundle present in dist).
+- No git operations, no Supabase.
