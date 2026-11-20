@@ -5,6 +5,8 @@ import { colors, fontFamily, radius, spacing } from '../theme';
 export interface SummaryStat {
   value: string;
   label: string;
+  /** Optional value colour (Package E: amber for due figures). */
+  valueColor?: string;
 }
 
 interface SummaryPanelProps {
@@ -32,7 +34,14 @@ export function SummaryPanel({
       <View style={styles.statRow}>
         {stats.map((s) => (
           <View key={s.label} style={styles.stat}>
-            <Text style={styles.statValue}>{s.value}</Text>
+            <Text
+              style={[
+                styles.statValue,
+                s.valueColor ? { color: s.valueColor } : null,
+              ]}
+            >
+              {s.value}
+            </Text>
             <Text style={styles.statLabel}>{s.label}</Text>
           </View>
         ))}

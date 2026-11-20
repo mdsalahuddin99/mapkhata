@@ -76,6 +76,7 @@ const mainItems: GridItem[] = [
     tint: colors.slateTint,
     iconColor: colors.slateBlue,
     icon: <BarChart3 size={ICON_SIZE} color={colors.slateBlue} strokeWidth={ICON_STROKE} />,
+    route: '/reports',
   },
   {
     label: 'দোকান',
@@ -133,9 +134,9 @@ function GridCell({ item }: { item: GridItem }) {
  * the no-icon-grid rule, home screen only): 4 columns of 48px circular
  * tint-backed icon buttons with short Bangla labels, in the muted palette.
  * Package A wired নতুন অর্ডার → /new-order; Package B wired
- * মাপ খুঁজুন → মাপ tab and কাস্টমার → /customers; the rest are still
- * visual for now. The "আরো দেখুন" pill expands a second row of
- * placeholder actions.
+ * মাপ খুঁজুন → মাপ tab and কাস্টমার → /customers; Package E wired
+ * রিপোর্ট → /reports; the rest are still visual for now. The
+ * "আরো দেখুন" pill expands a second row of placeholder actions.
  */
 export function ActionGrid() {
   const [expanded, setExpanded] = useState(false);

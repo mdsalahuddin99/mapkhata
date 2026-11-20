@@ -561,3 +561,86 @@ effect shows up everywhere immediately.
   karigar detail, karigar payment ([id] bundles) and নতুন কারিগর
   (new) alongside the migrated কারিগর tab bundle.
 - No git operations, no Supabase.
+
+## Package E: রিপোর্ট (2026-11-20)
+
+### Screens
+- **রিপোর্ট — `app/reports.tsx`** (stack, wired from the dashboard grid
+  "রিপোর্ট" item via a new `route: '/reports'` on ActionGrid).
+  BackHeader "রিপোর্ট"; সব হিসাব live from `useOrders()` +
+  `useKarigars()` + `useSessionCollections()`, Bengali digits
+  everywhere, amber only on due figures.
+  - **দৈনিক সারসংক্ষেপ — আজ:** SummaryPanel, big = আজকের আদায়;
+    stats আজকের অর্ডার / আজকের ডেলিভারি / আজ ডেলিভারিতে বকেয়া
+    (amber).
+  - **সময়ের হিসাব:** period chips (আজ / এই সপ্তাহ / এই মাস, orders-tab
+    chip style) switching a SummaryPanel: big = মোট বিক্রি; stats
+    মোট অর্ডার / মোট আদায় / বকেয়া যোগ হয়েছে (amber).
+  - **গত ৭ দিনের অর্ডার:** View-based bar strip — 7 flat primary bars
+    on muted neutral-tint tracks (64px), count on top, date number
+    below ("আজ" for today). No chart library, no gradients.
+  - **আয়ের বিবরণী — {period}:** per-garment rows (নাম, Nটি অর্ডার,
+    মোট টাকা) in one LedgerPanel, sorted by total desc, closing
+    মোট বিক্রি row that equals the period panel's figure. Empty
+    period → the standard one-line empty state.
+  - **কারিগর খরচ — এই মাস:** per-karigar rows from the karigar store
+    (নাম; meta "আয় X · পরিশোধ Y"; right পাওনা in ink — the shop's own
+    payable, so NOT amber, same rule as Package D), closing
+    মোট কারিগর পাওনা row. Period-independent (see below).
+  - Footnote: "সব হিসাব অর্ডারের ডেলিভারি তারিখ ধরে করা।"
+- **`SummaryPanel` extension:** `SummaryStat` gained an optional
+  `valueColor` (used for the amber due stats). Backward compatible —
+  every existing screen renders unchanged.
+
+### Derivations — the honest part
+The mock `Order` has **no creation date**. The only per-order date is
+`deliveryInDays`, and the only dated money events are session
+collections (`payments[]`, all `dateOffset: 0`), which the store has
+already folded into `advance`. So:
+
+- **Period windows are delivery-date windows** over non-cancelled
+  orders: আজ = offset 0; এই সপ্তাহ = −6..0; এই মাস = −29..0.
+  মোট অর্ডার = count in window; মোট বিক্রি = Σ `total`;
+  বকেয়া যোগ হয়েছে = Σ `dueOf` in window (net — a session collection
+  against an in-window order shrinks it, correctly).
+- **মোট আদায় (period)** = আজকের আদায় + Σ `advance` of orders
+  delivered earlier inside the window (offset < 0). আজকের আদায় is the
+  figure the Dashboard/বকেয়া already show — the mock counter constant
+  ৳6,300 + `useSessionCollections()` — so the আজ period matches the
+  dashboard exactly. The delivered orders' advances are the only other
+  collections the book can place in a window at all; treating them as
+  realized in their delivery window is a proxy, and `advance` (which
+  already includes every `payments` entry) is summed once, never
+  advance+payments double-counted.
+- **দৈনিক সারসংক্ষেপ proxies:** আজকের অর্ডার = orders with delivery
+  due today (the day's order book — there is no "placed today" field);
+  আজকের ডেলিভারি = of those, the ones ready or delivered (hand-over
+  able); আজ ডেলিভারিতে বকেয়া = Σ `dueOf` of today's orders — the
+  collection expected at today's handovers.
+- **৭-day bars are delivery-date counts** (offsets −6..0), not
+  order-placement counts — same proxy, labelled on screen only as
+  "গত ৭ দিনের অর্ডার" with the delivery-date footnote covering it.
+- **কারিগর খরচ ignores the period chips:** karigar figures are monthly
+  aggregates (`monthlyEarned`, payments list) with no per-order dates,
+  so the section is fixed to এই মাস and says so in its title.
+- **Future-delivery orders (offset > 0) sit outside every window** —
+  they are upcoming work, already counted on the Dashboard as চলমান
+  অর্ডার. A brand-new order therefore moves the report only when a
+  collection is taken on it (session collections lift আজকের আদায় and
+  every period's মোট আদায় at once) — "where the data allows", as
+  specced. Real created-at timestamps land with Supabase and retire
+  every proxy above.
+
+Seed check (verified by script against the mock data): আজ —
+৩টি অর্ডার, বিক্রি ৳৩,৫০০, আদায় ৳৬,৩০০, বকেয়া ৳১,২৫০; সপ্তাহ —
+৬টি, ৳৬,৯০০, ৳৮,৯৫০, ৳২,০০০; মাস — ১২টি, ৳১২,৩৫০, ৳১১,২০০,
+৳৫,২০০ (monotonic, and the per-garment month rows sum to the month
+বিক্রি). Daily card: অর্ডার ৩টি, ডেলিভারি ১টি, বকেয়া ৳১,২৫০.
+7-day counts: ১,০,০,০,১,১,৩. মোট কারিগর পাওনা ৳১১,৫৫০.
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0, no errors).
+- `npx expo export --platform web` — PASS; new `reports` bundle
+  (9.3KB) emitted alongside all existing bundles.
+- No git operations, no Supabase.
