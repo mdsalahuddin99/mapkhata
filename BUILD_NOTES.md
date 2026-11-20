@@ -815,3 +815,56 @@ matrix (paper/white/tint backgrounds only, amber only on due figures,
   shop 6.2KB, subscription 7.2KB, search 4.5KB, staff-new 4.3KB,
   profile 3.5KB, staff 2.8KB, notifications (bundle present in dist).
 - No git operations, no Supabase.
+
+## Package H: কাস্টমার পাবলিক পেজ — ট্র্যাকিং + পাবলিক রসিদ (2026-11-20)
+
+### Screens
+- **ট্র্যাকিং পেজ — `app/track/[code].tsx`**. Public page a customer
+  opens from an SMS/WhatsApp link: no login, no tab bar (the route
+  sits outside `(tabs)`), content in a centred column (maxWidth 480)
+  on the paper background. Order is found by code (case-insensitive)
+  in the orders store. From top: shop identity panel (56px
+  primary-tint logo circle with the shop initial, name, area, phone
+  in Bengali digits + a "কল করুন" secondary button wired to
+  `tel:`); greeting panel ("আসসালামু আলাইকুম, {first name}" —
+  "মোঃ" prefixes are skipped so মোঃ কামাল হোসেন greets as কামাল —
+  plus "অর্ডার {code} · {garment}"); a prominent panel when the
+  order is ready ("আপনার পোশাক তৈরি! দোকান থেকে সংগ্রহ করুন।",
+  primary tint, 16px) or delivered ("ডেলিভারি সম্পন্ন হয়েছে।
+  ধন্যবাদ!", neutral tint); the status panel with a customer-worded
+  vertical stepper (মাপ নেওয়া হয়েছে → কাটিং চলছে → সেলাই চলছে →
+  তৈরি হয়ে গেছে → ডেলিভারি সম্পন্ন): done steps are filled green
+  circles with a check, the current step is a green ring with a dot
+  plus one short Bangla line (সেলাই: "আপনার পোশাক এখন সেলাই
+  হচ্ছে।"), upcoming steps muted; delivery-date panel (আজ/আগামীকাল ·
+  calendar date, 20px); the customer's own bill (মোট / জমা / বকেয়া,
+  amber only when due > 0) — no other customer data anywhere.
+  Cancelled orders show a danger note instead of the stepper.
+  Unknown code → a friendly not-found panel ("এই কোডে কোনো অর্ডার
+  পাওয়া যায়নি — কোডটি আবার দেখে নিন"), no crash. Footer:
+  "MapKhata দিয়ে তৈরি".
+- **পাবলিক রসিদ — `app/r/[code].tsx`**. Same centred public shell:
+  the shared ReceiptCard plus a primary button "অর্ডারের অবস্থা
+  দেখুন" → `/track/[code]`, the same footer, and the same
+  not-found treatment for unknown codes.
+
+### Shared receipt + shopkeeper wiring
+- `src/components/ReceiptCard.tsx` (new) — the receipt card (shop
+  header, রসিদ নং, তারিখ, কাস্টমার/মোবাইল, পোশাক, ডেলিভারি, বিল
+  lines, ধন্যবাদ, ট্র্যাকিং-কোড box) extracted verbatim from the
+  in-app receipt; `app/order/receipt/[id].tsx` now renders it
+  (behaviour identical, শেয়ার button kept) and gained a small
+  faint line "কাস্টমারের রসিদ লিঙ্ক: /r/{code}".
+- Order detail (`app/order/[id].tsx`): the ট্র্যাকিং লিঙ্ক toggle
+  note now shows the real route "ট্র্যাকিং লিঙ্ক: /track/{code}"
+  instead of the "(ট্র্যাকিং ওয়েব পেজ আসছে)" placeholder.
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0).
+- `npx expo export --platform web` — PASS. The web output is the
+  app's usual SPA export (single index.html + per-route JS
+  bundles); the two new dynamic-route bundles `[code]-*.js` are
+  emitted and the entry bundle registers both `./track/[code].tsx`
+  and `./r/[code].tsx`.
+- No git operations, no Supabase.

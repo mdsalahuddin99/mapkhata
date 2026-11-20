@@ -431,11 +431,11 @@ export default function OrderDetailScreen() {
             {showTracking && (
               <View style={styles.trackingBox}>
                 <Text style={styles.trackingCode}>
-                  ট্র্যাকিং কোড: {order.code}
+                  ট্র্যাকিং লিঙ্ক: /track/{order.code}
                 </Text>
                 <Text style={styles.trackingText}>
-                  কাস্টমার এই কোড দিয়ে অর্ডারের অবস্থা জানতে পারবেন।
-                  (ট্র্যাকিং ওয়েব পেজ আসছে)
+                  কাস্টমার এই লিঙ্ক খুললেই অর্ডারের অবস্থা দেখতে পাবেন —
+                  লগইন লাগবে না।
                 </Text>
               </View>
             )}
