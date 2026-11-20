@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MapKhata — v3 হোম গ্রিড</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Hind Siliguri',sans-serif}
+body{background:#E9E7E1;color:#1B1E23;padding:28px 18px 40px}
+.head{max-width:640px;margin:0 auto 20px}.head h1{font-size:22px;font-weight:700}
+.head p{font-size:13.5px;color:#5C636B;margin-top:3px;line-height:1.55}
+.phones{display:flex;justify-content:center}
+.phone{width:302px;height:660px;background:#F7F6F3;border:1px solid #C9C5BC;border-radius:30px;overflow:hidden;display:flex;flex-direction:column}
+.band{background:#0E4F3C;color:#fff;padding:14px 16px 22px}
+.band .top{display:flex;align-items:center;gap:9px}
+.avatar{width:38px;height:38px;border-radius:50%;background:#E7F0EC;color:#0E4F3C;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex:none}
+.band .shop{font-size:14.5px;font-weight:600;line-height:1.25}.band .sub{font-size:11px;opacity:.85}
+.band .sp{flex:1}.icobtn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff}
+.pill{margin-top:12px;display:inline-flex;align-items:center;gap:7px;background:#fff;color:#0E4F3C;border-radius:999px;padding:5px 13px 4px;font-size:13px;font-weight:600}
+.pill b{font-size:14px}
+.sheet{background:#F7F6F3;border-radius:12px 12px 0 0;margin-top:-10px;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 4px;background:#fff;border-bottom:1px solid #E4E1DA;padding:16px 10px 13px}
+.gitem{text-align:center;font-size:11.5px;font-weight:500;color:#1B1E23;line-height:1.35}
+.gcirc{width:48px;height:48px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center}
+.t-green{background:#E7F0EC;color:#0E4F3C}.t-blue{background:#EAF0F5;color:#3E5C76}.t-must{background:#F7EFDA;color:#7C5C10}.t-amber{background:#FBF0DC;color:#B45309}.t-slate{background:#EDF0F2;color:#64707A}.t-rose{background:#F7E8E4;color:#9A3B2E}
+.more{grid-column:1/-1;text-align:center;font-size:12px;font-weight:600;color:#0E4F3C;border:1px solid #D8D4CB;border-radius:999px;padding:3px 0 2px;margin:0 70px;background:#fff}
+.body{flex:1;padding:12px 12px 8px;overflow:hidden}
+.mini{display:flex;background:#fff;border:1px solid #E4E1DA;border-radius:8px}
+.mini div{flex:1;text-align:center;padding:8px 2px 7px}.mini div+div{border-left:1px solid #E4E1DA}
+.mini .v{font-size:16px;font-weight:600}.mini .k{font-size:10.5px;color:#5C636B}
+.sec{font-size:13px;font-weight:600;margin:13px 2px 7px;display:flex;justify-content:space-between}.sec a{font-size:11.5px;color:#0E4F3C;font-weight:600;text-decoration:none}
+.list{background:#fff;border:1px solid #E4E1DA;border-radius:8px;overflow:hidden}
+.rowitem{display:flex;border-bottom:1px solid #EFEDE8;min-height:54px;align-items:center}.rowitem:last-child{border-bottom:none}
+.strip{width:3px;align-self:stretch;flex:none}.st-ready{background:#0E4F3C}.st-sew{background:#3E5C76}
+.ri-main{flex:1;padding:8px 10px;min-width:0}.ri-main .n{font-size:14px;font-weight:600;line-height:1.3}
+.ri-main .m{font-size:11.5px;color:#5C636B}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:4px;font-size:10.5px;font-weight:500;padding:1px 6px;margin-right:11px}
+.chip i{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+.c-green{background:#E7F0EC;color:#0E4F3C}.c-blue{background:#EAF0F5;color:#3E5C76}
+.nav{border-top:1px solid #E4E1DA;background:#fff;display:flex;padding:7px 4px 9px;position:relative}
+.nav div{flex:1;text-align:center;font-size:10.5px;color:#8A9199;font-weight:500;line-height:1.5}.nav div.on{color:#0E4F3C;font-weight:600}
+.nav svg{display:block;margin:0 auto}
+.centerbtn{width:46px;height:46px;border-radius:50%;background:#0E4F3C;color:#fff;display:flex;align-items:center;justify-content:center;margin:-22px auto 2px;border:3px solid #F7F6F3}
+</style></head>
+<body>
+<div class="head"><h1>মাপখাতা হোম v3 — গোল আইকন গ্রিড (আপনার পছন্দমতো)</h1><p>বিকাশের কাঠামো হুবহু: উপরে সবুজ ব্যান্ডে দোকান + "আজকের হিসাব" পিল, নিচে সাদা শিটে ৪-কলামের গোল আইকন গ্রিড, বটম নেভিগেশনের মাঝে বড় গোল + বাটন (নতুন অর্ডার)। তফাৎ শুধু: আইকনের রঙ আমাদের শান্ত প্যালেট থেকে, বিজ্ঞাপনের ব্যানার নেই, ব্যান্ড ফ্ল্যাট।</p></div>
+<div class="phones"><div class="phone">
+<div class="band"><div class="top"><div class="avatar">ন</div><div><div class="shop">নিউ স্টার টেইলার্স</div><div class="sub">আরুয়াইল বাজার</div></div><div class="sp"></div>
+<div class="icobtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+<div class="icobtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></div></div>
+<div class="pill">৳ <b>আজকের হিসাব দেখুন</b></div></div>
+<div class="sheet">
+<div class="grid">
+<div class="gitem"><div class="gcirc t-green"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>নতুন অর্ডার</div>
+<div class="gitem"><div class="gcirc t-blue"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 17 3l4 4L7 21H3z"/><path d="m8 12 2 2M11 9l2 2"/></svg></div>মাপ খুঁজুন</div>
+<div class="gitem"><div class="gcirc t-amber"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></div>বকেয়া</div>
+<div class="gitem"><div class="gcirc t-must"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M16 4.5a3.5 3.5 0 0 1 0 7M21 20c0-2.6-1.6-4.4-4-5.2"/></svg></div>কারিগর</div>
+<div class="gitem"><div class="gcirc t-slate"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></div>কাস্টমার</div>
+<div class="gitem"><div class="gcirc t-green"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></div>টাকা জমা</div>
+<div class="gitem"><div class="gcirc t-blue"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>রিপোর্ট</div>
+<div class="gitem"><div class="gcirc t-rose"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7 6 3h12l2 4M4 7h16v13H4zM9 11a3 3 0 0 0 6 0"/></svg></div>দোকান</div>
+<div class="more">আরো দেখুন ⌄</div>
+</div>
+<div class="body">
+<div class="mini"><div><div class="v">৭টি</div><div class="k">আজকের ডেলিভারি</div></div><div><div class="v">৪২টি</div><div class="k">চলমান অর্ডার</div></div><div><div class="v">৳১২,৪৫০</div><div class="k">মোট বকেয়া</div></div></div>
+<div class="sec">আজকের ডেলিভারি <a href="#">সব দেখুন</a></div>
+<div class="list">
+<div class="rowitem"><div class="strip st-ready"></div><div class="ri-main"><div class="n">রফিকুল ইসলাম</div><div class="m">পাঞ্জাবি · #১২৪</div></div><span class="chip c-green"><i></i>রেডি</span></div>
+<div class="rowitem"><div class="strip st-sew"></div><div class="ri-main"><div class="n">ফাতেমা বেগম</div><div class="m">সালোয়ার কামিজ · #১২৫</div></div><span class="chip c-blue"><i></i>সেলাই</span></div>
+<div class="rowitem"><div class="strip st-ready"></div><div class="ri-main"><div class="n">শারমিন আক্তার</div><div class="m">ব্লাউজ · #১২১</div></div><span class="chip c-green"><i></i>রেডি</span></div>
+</div>
+</div>
+<div class="nav"><div class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>হোম</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>অর্ডার</div><div><div class="centerbtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></div>নতুন</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 17 3l4 4L7 21H3z"/></svg>মাপ</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>বকেয়া</div></div>
+</div></div></div>
+</body></html>

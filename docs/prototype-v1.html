@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MapKhata — UI প্রোটোটাইপ v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Hind Siliguri',sans-serif}
+body{background:#E9E7E1;color:#1B1E23;padding:28px 18px 40px}
+.head{max-width:1620px;margin:0 auto 20px}
+.head h1{font-size:22px;font-weight:700}.head p{font-size:13.5px;color:#5C636B;margin-top:3px;max-width:760px;line-height:1.55}
+.rules{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:1620px;margin:0 auto}
+.phone{width:302px;height:636px;background:#F7F6F3;border:1px solid #C9C5BC;border-radius:30px;overflow:hidden;display:flex;flex-direction:column;flex:none}
+.p-label{width:302px;font-size:12.5px;font-weight:600;color:#5C636B;margin:0 auto 6px}
+.col{display:flex;flex-direction:column}
+.sbar{height:26px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-size:11px;font-weight:600;background:#fff;border-bottom:1px solid #E4E1DA}
+.hdr{background:#fff;border-bottom:1px solid #E4E1DA;padding:10px 14px 9px}
+.hdr .shop{font-size:11px;color:#5C636B;font-weight:500}
+.hdr .row{display:flex;justify-content:space-between;align-items:center;margin-top:1px}
+.hdr h2{font-size:19px;font-weight:700;line-height:1.25}
+.btn{background:#0E4F3C;color:#fff;border:none;border-radius:6px;height:36px;padding:0 12px;font-size:13px;font-weight:600;cursor:pointer}
+.btn.sm{height:30px;font-size:12px;padding:0 10px}
+.btn.ghost{background:#fff;color:#1B1E23;border:1px solid #D8D4CB}
+.body{flex:1;overflow:hidden;padding:12px 12px 8px}
+.sec{font-size:12.5px;font-weight:600;margin:12px 2px 6px;display:flex;justify-content:space-between;align-items:baseline}
+.sec:first-child{margin-top:0}.sec a{font-size:11.5px;color:#0E4F3C;font-weight:600;text-decoration:none}
+.panel{background:#fff;border:1px solid #E4E1DA;border-radius:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr}
+.stat{padding:10px 12px 8px}.stat:nth-child(odd){border-right:1px solid #E4E1DA}.stat:nth-child(1),.stat:nth-child(2){border-bottom:1px solid #E4E1DA}
+.stat .k{font-size:11px;color:#5C636B;font-weight:500}.stat .v{font-size:21px;font-weight:600;line-height:1.3}.stat .v.amber{color:#B45309}.stat .s{font-size:10.5px;color:#8A9199}
+.list{background:#fff;border:1px solid #E4E1DA;border-radius:8px;overflow:hidden}
+.rowitem{display:flex;border-bottom:1px solid #EFEDE8;min-height:58px}.rowitem:last-child{border-bottom:none}
+.strip{width:3px;flex:none}.st-ready{background:#0E4F3C}.st-sew{background:#3E5C76}.st-cut{background:#7C5C10}.st-meas{background:#8A9199}.st-due{background:#B45309}
+.ri-main{flex:1;padding:8px 10px 7px 10px;min-width:0}
+.ri-main .n{font-size:13.5px;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-main .m{font-size:11px;color:#5C636B;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-r{text-align:right;padding:8px 10px 7px 0;flex:none}
+.ri-r .amt{font-size:13px;font-weight:600}.ri-r .dt{font-size:10.5px;color:#8A9199}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:4px;font-size:10.5px;font-weight:500;padding:1px 6px;line-height:1.5}
+.chip i{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+.c-green{background:#E7F0EC;color:#0E4F3C}.c-blue{background:#EAF0F5;color:#3E5C76}.c-must{background:#F7EFDA;color:#7C5C10}.c-grey{background:#EFEFEF;color:#5C636B}.c-amber{background:#FBF0DC;color:#B45309}.c-red{background:#FAECEA;color:#B42318}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.fchip{border:1px solid #D8D4CB;background:#fff;border-radius:4px;font-size:12px;font-weight:500;padding:4px 9px;color:#5C636B}
+.fchip.on{background:#0E4F3C;border-color:#0E4F3C;color:#fff}
+.search{background:#fff;border:1px solid #D8D4CB;border-radius:6px;height:38px;display:flex;align-items:center;padding:0 10px;font-size:13px;color:#8A9199;margin-bottom:10px;gap:7px}
+.nav{border-top:1px solid #E4E1DA;background:#fff;display:flex;padding:6px 4px 8px}
+.nav div{flex:1;text-align:center;font-size:10px;color:#8A9199;font-weight:500;line-height:1.5}
+.nav div.on{color:#0E4F3C;font-weight:600}.nav svg{display:block;margin:0 auto}
+label.fl{display:block;font-size:11.5px;font-weight:500;color:#5C636B;margin:9px 0 4px}
+.inp{background:#fff;border:1px solid #D8D4CB;border-radius:6px;height:38px;padding:0 10px;font-size:13.5px;display:flex;align-items:center}
+.inp.focus{border-color:#0E4F3C}
+.mgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.mcell{background:#fff;border:1px solid #D8D4CB;border-radius:6px;padding:5px 8px 4px}
+.mcell .k{font-size:10.5px;color:#5C636B;font-weight:500}.mcell .v{font-size:14px;font-weight:600}
+.total{display:flex;justify-content:space-between;font-size:13px;padding:7px 2px;border-bottom:1px solid #E4E1DA}
+.total b{font-size:13.5px}.foot{padding:10px 12px;background:#fff;border-top:1px solid #E4E1DA}
+.foot .btn{width:100%;height:42px;font-size:14px}
+.note{font-size:11px;color:#8A9199;line-height:1.5;padding:6px 2px}
+.kpi{display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #EFEDE8;font-size:12px}
+.kpi:last-child{border-bottom:none}.kpi b{font-size:12.5px}
+</style></head>
+<body>
+<div class="head"><h1>মাপখাতা — UI প্রোটোটাইপ v1</h1><p>ডিজাইন নিয়ম: সর্বোচ্চ 8px radius, কার্ডে কোনো shadow নেই (শুধু 1px hairline border), কোনো gradient নেই, ঘন লেজার-ধাঁচের তালিকা, একটাই প্রাইমারি রঙ (গভীর সবুজ), অ্যাম্বার শুধু বকেয়া/জরুরি জায়গায়। ফন্ট: Hind Siliguri।</p></div>
+<div class="phones">
+
+<div class="col"><div class="p-label">১ · ড্যাশবোর্ড</div><div class="phone">
+<div class="sbar"><span>৯:৪১</span><span>4G ▰▰▰</span></div>
+<div class="hdr"><div class="shop">নিউ স্টার টেইলার্স · আরুয়াইল বাজার</div><div class="row"><h2>আসসালামু আলাইকুম, করিম ভাই</h2></div>
+<div style="display:flex;gap:6px;margin-top:8px"><button class="btn" style="flex:1">+ নতুন অর্ডার</button><button class="btn ghost" style="flex:1">মাপ খুঁজুন</button></div></div>
+<div class="body">
+<div class="panel stats">
+<div class="stat"><div class="k">আজকের ডেলিভারি</div><div class="v">৭টি</div><div class="s">৩টি এখনো রেডি নয়</div></div>
+<div class="stat"><div class="k">চলমান অর্ডার</div><div class="v">৪২টি</div><div class="s">এই সপ্তাহে ১৮টি নতুন</div></div>
+<div class="stat"><div class="k">মোট বকেয়া</div><div class="v amber">৳১২,৪৫০</div><div class="s">৯ জন কাস্টমারের কাছে</div></div>
+<div class="stat"><div class="k">আজকের আদায়</div><div class="v">৳৬,৩০০</div><div class="s">অগ্রিম ৳২,৮০০ সহ</div></div>
+</div>
+<div class="sec">আজকের ডেলিভারি <a href="#">সব দেখুন</a></div>
+<div class="list">
+<div class="rowitem"><div class="strip st-ready"></div><div class="ri-main"><div class="n">রফিকুল ইসলাম</div><div class="m">পাঞ্জাবি · সাদা · #১২৪</div></div><div class="ri-r"><span class="chip c-green"><i></i>রেডি</span><div class="dt">বকেয়া ৳৩৫০</div></div></div>
+<div class="rowitem"><div class="strip st-sew"></div><div class="ri-main"><div class="n">ফাতেমা বেগম</div><div class="m">সালোয়ার কামিজ · #১২৫</div></div><div class="ri-r"><span class="chip c-blue"><i></i>সেলাই চলছে</span><div class="dt">বকেয়া ৳৬৫০</div></div></div>
+<div class="rowitem"><div class="strip st-cut"></div><div class="ri-main"><div class="n">আব্দুল হক</div><div class="m">শার্ট + প্যান্ট · #১২৬</div></div><div class="ri-r"><span class="chip c-must"><i></i>কাটিং</span><div class="dt">পুরো বাকি ৳১,১০০</div></div></div>
+<div class="rowitem"><div class="strip st-ready"></div><div class="ri-main"><div class="n">শারমিন আক্তার</div><div class="m">ব্লাউজ + পেটিকোট · #১২১</div></div><div class="ri-r"><span class="chip c-green"><i></i>রেডি</span><div class="dt">পরিশোধিত</div></div></div>
+</div>
+<div class="sec">আগামী ৩ দিনে <a href="#">ক্যালেন্ডার</a></div>
+<div class="list">
+<div class="rowitem"><div class="strip st-meas"></div><div class="ri-main"><div class="n">আগামীকাল — ৫টি ডেলিভারি</div><div class="m">২টি রেডি, ৩টি সেলাইয়ে</div></div><div class="ri-r"><div class="amt">শনি</div><div class="dt">২২ নভে</div></div></div>
+<div class="rowitem"><div class="strip st-meas"></div><div class="ri-main"><div class="n">রবিবার — ৮টি ডেলিভারি</div><div class="m">ঈদ-অর্ডার ৩টি সহ</div></div><div class="ri-r"><div class="amt">রবি</div><div class="dt">২৩ নভে</div></div></div>
+</div>
+</div>
+<div class="nav"><div class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>হোম</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>অর্ডার</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 17 3l4 4L7 21H3z"/></svg>মাপ</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>বকেয়া</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M16 4.6a3.5 3.5 0 0 1 0 6.8M21 20c0-2.8-1.9-4.7-4.5-5.3"/></svg>কারিগর</div></div>
+</div></div>
+
+<div class="col"><div class="p-label">২ · অর্ডার তালিকা</div><div class="phone">
+<div class="sbar"><span>৯:৪১</span><span>4G ▰▰▰</span></div>
+<div class="hdr"><div class="row"><h2>অর্ডার</h2><button class="btn sm">+ নতুন</button></div></div>
+<div class="body">
+<div class="search">⌕ &nbsp;নাম বা মোবাইল নম্বর দিয়ে খুঁজুন</div>
+<div class="chips"><span class="fchip on">সব · ৪২</span><span class="fchip">মাপ নেওয়া · ৬</span><span class="fchip">কাটিং · ৯</span><span class="fchip">সেলাই · ১৫</span><span class="fchip">রেডি · ১২</span></div>
+<div class="list">
+<div class="rowitem"><div class="strip st-ready"></div><div class="ri-main"><div class="n">রফিকুল ইসলাম · #১২৪</div><div class="m">পাঞ্জাবি — ডেলিভারি আজ</div></div><div class="ri-r"><div class="amt">৳৮৫০</div><div class="dt">বকেয়া ৳৩৫০</div></div></div>
+<div class="rowitem"><div class="strip st-sew"></div><div class="ri-main"><div class="n">ফাতেমা বেগম · #১২৫</div><div class="m">সালোয়ার কামিজ — ডেলিভারি আজ</div></div><div class="ri-r"><div class="amt">৳৬৫০</div><div class="dt">বকেয়া ৳৬৫০</div></div></div>
+<div class="rowitem"><div class="strip st-cut"></div><div class="ri-main"><div class="n">আব্দুল হক · #১২৬</div><div class="m">শার্ট, প্যান্ট — আগামীকাল</div></div><div class="ri-r"><div class="amt">৳১,১০০</div><div class="dt">অগ্রিম ৳০</div></div></div>
+<div class="rowitem"><div class="strip st-sew"></div><div class="ri-main"><div class="n">নুসরাত জাহান · #১২৩</div><div class="m">বোরকা — ২৩ নভেম্বর</div></div><div class="ri-r"><div class="amt">৳১,২০০</div><div class="dt">বকেয়া ৳৭০০</div></div></div>
+<div class="rowitem"><div class="strip st-meas"></div><div class="ri-main"><div class="n">মোঃ সেলিম · #১২৭</div><div class="m">পাঞ্জাবি — ২৪ নভেম্বর</div></div><div class="ri-r"><div class="amt">৳৯০০</div><div class="dt">অগ্রিম ৳৪০০</div></div></div>
+<div class="rowitem"><div class="strip st-ready"></div><div class="ri-main"><div class="n">শারমিন আক্তার · #১২১</div><div class="m">ব্লাউজ — ডেলিভারি আজ</div></div><div class="ri-r"><div class="amt">৳৪৫০</div><div class="dt">পরিশোধিত</div></div></div>
+<div class="rowitem"><div class="strip st-sew"></div><div class="ri-main"><div class="n">তানভীর হাসান · #১২০</div><div class="m">প্যান্ট ×২ — ২২ নভেম্বর</div></div><div class="ri-r"><div class="amt">৳১,০০০</div><div class="dt">বকেয়া ৳৫০০</div></div></div>
+<div class="rowitem"><div class="strip st-cut"></div><div class="ri-main"><div class="n">রুমা পারভীন · #১১৯</div><div class="m">সালোয়ার কামিজ — ২২ নভেম্বর</div></div><div class="ri-r"><div class="amt">৳৭৫০</div><div class="dt">বকেয়া ৳২৫০</div></div></div>
+</div>
+<p class="note">দেরি হয়ে যাওয়া অর্ডার থাকলে তারিখ লাল রঙে দেখাবে, আলাদা কার্ড বা পপআপ নয়।</p>
+</div>
+<div class="nav"><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>হোম</div><div class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>অর্ডার</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 17 3l4 4L7 21H3z"/></svg>মাপ</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>বকেয়া</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg>কারিগর</div></div>
+</div></div>
+
+<div class="col"><div class="p-label">৩ · নতুন অর্ডার ও মাপ (পাঞ্জাবি)</div><div class="phone">
+<div class="sbar"><span>৯:৪১</span><span>4G ▰▰▰</span></div>
+<div class="hdr"><div class="shop">ধাপ ২ / ২ — মাপ ও বিল</div><div class="row"><h2>নতুন অর্ডার · #১২৮</h2></div></div>
+<div class="body">
+<div class="panel" style="padding:9px 12px"><div style="font-size:13.5px;font-weight:600">রফিকুল ইসলাম</div><div style="font-size:11.5px;color:#5C636B">০১৭১২-৩৪৫৬৭৮ · আগের মাপ পাওয়া গেছে, অটো বসানো হয়েছে</div></div>
+<label class="fl">পোশাক</label>
+<div class="chips" style="margin-bottom:0"><span class="fchip on">পাঞ্জাবি</span><span class="fchip">শার্ট</span><span class="fchip">প্যান্ট</span><span class="fchip">সালোয়ার কামিজ</span><span class="fchip">ব্লাউজ</span></div>
+<label class="fl">মাপ (ইঞ্চি)</label>
+<div class="mgrid">
+<div class="mcell"><div class="k">লম্বা</div><div class="v">৪২</div></div>
+<div class="mcell"><div class="k">বুক</div><div class="v">৪০</div></div>
+<div class="mcell"><div class="k">পেট</div><div class="v">৩৮</div></div>
+<div class="mcell"><div class="k">কাঁধ</div><div class="v">১৭.৫</div></div>
+<div class="mcell"><div class="k">হাতা</div><div class="v">২৩.৫</div></div>
+<div class="mcell"><div class="k">গলা</div><div class="v">১৫.৫</div></div>
+<div class="mcell"><div class="k">কফ</div><div class="v">৯.৫</div></div>
+<div class="mcell"><div class="k">প্লেট</div><div class="v">—</div></div>
+<div class="mcell"><div class="k">পকেট</div><div class="v">২টি</div></div>
+</div>
+<label class="fl">ডিজাইন নোট</label>
+<div class="inp" style="height:auto;padding:8px 10px;line-height:1.5">গলায় ছোট ব্যান্ড, সামনে সাদা বোতাম। কাপড়: ধবধবে সাদা কটন।</div>
+<label class="fl">ডেলিভারির তারিখ</label>
+<div class="inp focus">শুক্রবার, ২৭ নভেম্বর ২০২৬</div>
+<div style="margin-top:12px">
+<div class="total"><span>মজুরি (পাঞ্জাবি × ১)</span><b>৳৮৫০</b></div>
+<div class="total"><span>অগ্রিম জমা</span><b>৳৫০০</b></div>
+<div class="total" style="border-bottom:none"><span>বকেয়া থাকবে</span><b style="color:#B45309">৳৩৫০</b></div>
+</div>
+</div>
+<div class="foot"><button class="btn">অর্ডার নিশ্চিত করুন — SMS যাবে</button></div>
+</div></div>
+
+<div class="col"><div class="p-label">৪ · বকেয়া তালিকা</div><div class="phone">
+<div class="sbar"><span>৯:৪১</span><span>4G ▰▰▰</span></div>
+<div class="hdr"><div class="row"><h2>বকেয়া</h2><button class="btn ghost sm">তাগাদা SMS</button></div></div>
+<div class="body">
+<div class="panel" style="padding:10px 12px;margin-bottom:10px"><div style="font-size:11.5px;color:#5C636B;font-weight:500">সর্বমোট পাওনা — ৯ জন</div><div style="font-size:22px;font-weight:600;color:#B45309">৳১২,৪৫০</div><div style="font-size:11px;color:#8A9199">এর মধ্যে ৩০ দিনের বেশি পুরনো: ৳৩,২০০</div></div>
+<div class="list">
+<div class="rowitem"><div class="strip st-due"></div><div class="ri-main"><div class="n">আব্দুল হক</div><div class="m">#১২৬ · ২টি অর্ডার · ১২ দিন ধরে</div></div><div class="ri-r"><div class="amt" style="color:#B45309">৳১,১০০</div><div class="dt">জমা নিন ›</div></div></div>
+<div class="rowitem"><div class="strip st-due"></div><div class="ri-main"><div class="n">নুসরাত জাহান</div><div class="m">#১২৩ · বোরকা · ৫ দিন</div></div><div class="ri-r"><div class="amt" style="color:#B45309">৳৭০০</div><div class="dt">জমা নিন ›</div></div></div>
+<div class="rowitem"><div class="strip st-due"></div><div class="ri-main"><div class="n">ফাতেমা বেগম</div><div class="m">#১২৫ · সালোয়ার কামিজ · আজ</div></div><div class="ri-r"><div class="amt" style="color:#B45309">৳৬৫০</div><div class="dt">জমা নিন ›</div></div></div>
+<div class="rowitem"><div class="strip st-due"></div><div class="ri-main"><div class="n">তানভীর হাসান</div><div class="m">#১২০ · প্যান্ট ×২ · ৮ দিন</div></div><div class="ri-r"><div class="amt" style="color:#B45309">৳৫০০</div><div class="dt">জমা নিন ›</div></div></div>
+<div class="rowitem"><div class="strip st-due"></div><div class="ri-main"><div class="n">রফিকুল ইসলাম</div><div class="m">#১২৪ · পাঞ্জাবি · আজ</div></div><div class="ri-r"><div class="amt" style="color:#B45309">৳৩৫০</div><div class="dt">জমা নিন ›</div></div></div>
+<div class="rowitem"><div class="strip st-due"></div><div class="ri-main"><div class="n">রুমা পারভীন</div><div class="m">#১১৯ · সালোয়ার কামিজ · ৩ দিন</div></div><div class="ri-r"><div class="amt" style="color:#B45309">৳২৫০</div><div class="dt">জমা নিন ›</div></div></div>
+</div>
+<p class="note">"জমা নিন" চাপলেই পরিমাণ বসিয়ে এক ট্যাপে হিসাব মিলবে — আলাদা খাতা লাগবে না।</p>
+</div>
+<div class="nav"><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>হোম</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>অর্ডার</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 17 3l4 4L7 21H3z"/></svg>মাপ</div><div class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>বকেয়া</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg>কারিগর</div></div>
+</div></div>
+
+<div class="col"><div class="p-label">৫ · কারিগর ও মজুরি</div><div class="phone">
+<div class="sbar"><span>৯:৪১</span><span>4G ▰▰▰</span></div>
+<div class="hdr"><div class="row"><h2>কারিগর</h2><button class="btn sm">+ যোগ করুন</button></div><div class="shop">এই সপ্তাহ · ১৫–২১ নভেম্বর</div></div>
+<div class="body">
+<div class="panel" style="margin-bottom:10px">
+<div style="padding:9px 12px 7px;border-bottom:1px solid #E4E1DA"><span style="font-size:14px;font-weight:600">জামাল উদ্দিন</span><span style="font-size:11px;color:#5C636B"> · সেলাই মাস্টার</span><span class="chip c-blue" style="float:right"><i></i>হাতে কাজ ৩টি</span></div>
+<div class="kpi"><span>সম্পন্ন পিস (এই সপ্তাহ)</span><b>১৪টি</b></div>
+<div class="kpi"><span>মোট অর্জিত মজুরি</span><b>৳৪,২০০</b></div>
+<div class="kpi"><span>পরিশোধ করা হয়েছে</span><b>৳৩,০০০</b></div>
+<div class="kpi"><span>পাওনা আছে</span><b style="color:#B45309">৳১,২০০</b></div>
+</div>
+<div class="panel" style="margin-bottom:10px">
+<div style="padding:9px 12px 7px;border-bottom:1px solid #E4E1DA"><span style="font-size:14px;font-weight:600">শাহিন আলম</span><span style="font-size:11px;color:#5C636B"> · কাটিং মাস্টার</span><span class="chip c-must" style="float:right"><i></i>হাতে কাজ ৫টি</span></div>
+<div class="kpi"><span>সম্পন্ন পিস (এই সপ্তাহ)</span><b>২১টি</b></div>
+<div class="kpi"><span>মোট অর্জিত মজুরি</span><b>৳৩,১৫০</b></div>
+<div class="kpi"><span>পরিশোধ করা হয়েছে</span><b>৳৩,১৫০</b></div>
+<div class="kpi"><span>পাওনা আছে</span><b>৳০</b></div>
+</div>
+<div class="panel">
+<div style="padding:9px 12px 7px;border-bottom:1px solid #E4E1DA"><span style="font-size:14px;font-weight:600">রোকেয়া বেগম</span><span style="font-size:11px;color:#5C636B"> · হাতের কাজ / ফিনিশিং</span><span class="chip c-blue" style="float:right"><i></i>হাতে কাজ ২টি</span></div>
+<div class="kpi"><span>সম্পন্ন পিস (এই সপ্তাহ)</span><b>৯টি</b></div>
+<div class="kpi"><span>মোট অর্জিত মজুরি</span><b>৳১,৩৫০</b></div>
+<div class="kpi"><span>পাওনা আছে</span><b style="color:#B45309">৳১,৩৫০</b></div>
+</div>
+<p class="note">পিস-রেট দোকানের সেটিংস থেকে: পাঞ্জাবি ৳৩০০, কামিজ ৳২৫০, কাটিং ৳১৫০/পিস।</p>
+</div>
+<div class="nav"><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>হোম</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>অর্ডার</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 17 3l4 4L7 21H3z"/></svg>মাপ</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>বকেয়া</div><div class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg>কারিগর</div></div>
+</div></div>
+
+</div>
+</body></html>
