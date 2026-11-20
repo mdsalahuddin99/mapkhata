@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import {
@@ -52,6 +53,7 @@ function ageOf(order: Order): string {
 }
 
 export default function DueScreen() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
 
   const visible = useMemo(() => {
@@ -99,9 +101,19 @@ export default function DueScreen() {
           ) : (
             <LedgerPanel>
               {visible.map((order, i) => (
-                <View
+                <Pressable
                   key={order.id}
-                  style={[styles.row, i < visible.length - 1 && styles.divider]}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/customer/[phone]',
+                      params: { phone: order.customerPhone },
+                    } as never)
+                  }
+                  style={({ pressed }) => [
+                    styles.row,
+                    i < visible.length - 1 && styles.divider,
+                    pressed && styles.rowPressed,
+                  ]}
                 >
                   <View style={styles.main}>
                     <Text style={styles.name} numberOfLines={1}>
@@ -123,7 +135,7 @@ export default function DueScreen() {
                   >
                     <Text style={styles.payLabel}>জমা নিন</Text>
                   </Pressable>
-                </View>
+                </Pressable>
               ))}
             </LedgerPanel>
           )}
@@ -172,6 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   divider: { borderBottomWidth: 1, borderBottomColor: colors.hairline },
+  rowPressed: { backgroundColor: colors.background },
   main: { flex: 1, gap: 2 },
   name: { ...typography.bodySemiBold, color: colors.ink },
   meta: { ...typography.label, color: colors.textSecondary },

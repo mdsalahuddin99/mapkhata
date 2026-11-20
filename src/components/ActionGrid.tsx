@@ -44,6 +44,7 @@ const mainItems: GridItem[] = [
     tint: colors.slateTint,
     iconColor: colors.slateBlue,
     icon: <Ruler size={ICON_SIZE} color={colors.slateBlue} strokeWidth={ICON_STROKE} />,
+    route: '/(tabs)/measurements',
   },
   {
     label: 'বকেয়া',
@@ -62,6 +63,7 @@ const mainItems: GridItem[] = [
     tint: colors.slateNeutralTint,
     iconColor: colors.slate,
     icon: <UserPlus size={ICON_SIZE} color={colors.slate} strokeWidth={ICON_STROKE} />,
+    route: '/customers',
   },
   {
     label: 'টাকা জমা',
@@ -130,7 +132,8 @@ function GridCell({ item }: { item: GridItem }) {
  * v1.2 home action grid (DESIGN.md v1.2 — the owner's limited exception to
  * the no-icon-grid rule, home screen only): 4 columns of 48px circular
  * tint-backed icon buttons with short Bangla labels, in the muted palette.
- * Package A wired নতুন অর্ডার → /new-order; the other items are still
+ * Package A wired নতুন অর্ডার → /new-order; Package B wired
+ * মাপ খুঁজুন → মাপ tab and কাস্টমার → /customers; the rest are still
  * visual for now. The "আরো দেখুন" pill expands a second row of
  * placeholder actions.
  */

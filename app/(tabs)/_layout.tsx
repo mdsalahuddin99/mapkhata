@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { ClipboardList, LayoutDashboard, Users, Wallet } from 'lucide-react-native';
+import { ClipboardList, LayoutDashboard, Ruler, Users, Wallet } from 'lucide-react-native';
 import React from 'react';
 import { colors, fontFamily } from '../../src/theme';
 
@@ -46,6 +46,15 @@ export default function TabsLayout() {
           title: 'অর্ডার',
           tabBarIcon: ({ color }) => (
             <ClipboardList size={22} color={color} strokeWidth={1.8} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="measurements"
+        options={{
+          title: 'মাপ',
+          tabBarIcon: ({ color }) => (
+            <Ruler size={22} color={color} strokeWidth={1.8} />
           ),
         }}
       />

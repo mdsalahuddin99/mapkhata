@@ -315,3 +315,58 @@ primary border, no glow), fixed footer with the save button.
 - `npx expo export --platform web` — PASS; new-order bundle 15KB
   emitted alongside index/orders/due/karigar.
 - No git commits/pushes (coordinator handles git), no Supabase.
+
+## Package B: মাপ ট্যাব + কাস্টমার (2026-11-20)
+The measurement book and the customer pages: find a customer's saved
+measurements by name/phone, browse all customers, and open one
+customer's full page (summary + measurements + order history).
+
+### Screens
+- **মাপ ট্যাব — `app/(tabs)/measurements.tsx`** (new tab, Ruler icon,
+  order: হোম, অর্ডার, মাপ, বকেয়া, কারিগর). White header "মাপের খাতা",
+  a prominent search field (48px — finding is this screen's main job),
+  then only the customers who HAVE saved measurements (9 of the 12 mock
+  customers), as ledger rows: circular initial avatar, name, one meta
+  line (phone in Bengali digits · garments with saved measurements,
+  e.g. "পাঞ্জাবি, শার্ট"), chevron. Tap → customer detail.
+- **কাস্টমার তালিকা — `app/customers.tsx`** (stack). Back header,
+  search, all 12 mock customers. Right side: total due in amber
+  (derived live from the orders store, matched by phone) when > 0,
+  otherwise the order count (or "নতুন কাস্টমার"). Tap → detail.
+  Wired from the dashboard grid "কাস্টমার" cell; the grid's
+  "মাপ খুঁজুন" cell now routes to the মাপ tab too.
+- **কাস্টমার বিস্তারিত — `app/customer/[phone].tsx`** (stack, keyed by
+  phone). Summary panel (মোট বকেয়া big — amber only when > 0 — plus
+  মোবাইল / মোট অর্ডার / মোট জমা), then one panel per measured garment
+  with field/value pairs in 2-column hairline rows (labels from
+  garmentDefs, values in Bengali digits) and a visual "মাপ সম্পাদনা"
+  button, then the customer's order history from `useOrders()` as
+  ledger rows with status chips (right: total + বকেয়া/পরিশোধ), and a
+  "টাকা জমা নিন" primary button when a due remains (visual — Package C
+  builds the collection screen). Unknown phones degrade gracefully:
+  name/orders are derived from the store, measurements show empty.
+- **বকেয়া tab rows are now tappable** → the same customer detail
+  (the row's "জমা নিন" button stays visual and keeps its own press).
+
+### Shared bits — `src/components/CustomerBits.tsx`
+- `CustomerAvatar` (circular initial, tint rotates through the muted
+  palette), `SearchField` (the list-screen search box, optional
+  prominent height), `BackHeader` (white bar, back chevron + title)
+  — extracted so the three new screens share one look.
+
+### Deviations / notes
+- Customers still come from the mock list: a customer first created
+  through the নতুন অর্ডার form appears in Orders immediately but joins
+  the customer list / মাপ tab only when a real customers store
+  replaces the mock `customers` array.
+- "মাপ সম্পাদনা" and "টাকা জমা নিন" on the detail screen are visual
+  Pressables with no action yet (edit-prefill flow and the collection
+  screen are later packages, per scope).
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0, no errors).
+- `npx expo export --platform web` — PASS; measurements (3.1KB),
+  customers (3.9KB) and [phone] (4.6KB) bundles emitted alongside the
+  existing routes.
+- No git operations, no Supabase.
