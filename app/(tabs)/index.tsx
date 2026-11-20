@@ -63,6 +63,7 @@ export default function DashboardScreen() {
           balanceValue={takaBn(stats.totalDue)}
           sideLabel="আজকের আদায়"
           sideValue={takaBn(stats.todayCollection)}
+          onAvatarPress={() => router.push('/login' as never)}
         />
 
         {/* v1.2 white sheet over the band: 12px top corners, overlaps by 10px */}

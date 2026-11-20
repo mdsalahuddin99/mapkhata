@@ -644,3 +644,75 @@ Seed check (verified by script against the mock data): আজ —
 - `npx expo export --platform web` — PASS; new `reports` bundle
   (9.3KB) emitted alongside all existing bundles.
 - No git operations, no Supabase.
+
+## Package F: লগইন / OTP / সেটআপ / প্ল্যান — onboarding UI (2026-11-20)
+
+The front door exists as complete interactive UI. **No auth backend
+and no gating**: the root still opens straight to the tabs; the auth
+screens live in an `app/(auth)/` route group (clean URLs /login,
+/otp, /setup, /plan) and are reachable by route. One discreet entry
+point for reviewers: the dashboard band's avatar is now a Pressable
+(BandHeader gained an optional `onAvatarPress`) that pushes /login.
+Supabase phone auth replaces the demo flow later without changing
+the screens' shape.
+
+### Screens
+- **লগইন — `app/(auth)/login.tsx`.** bKash-style entry: flat green
+  band (logo circle with Ruler icon, app name "মাপখাতা", one-line
+  promise "মাপের খাতা, অর্ডার আর বকেয়ার হিসাব — এখন মোবাইলে"), then
+  a white sheet panel: মোবাইল নম্বর input (digits only, 11 max) with
+  BD validation `/^01[3-9]\d{8}$/` and an inline danger error,
+  "OTP পাঠান" primary → /otp with the phone as a route param. Footer
+  note: চালিয়ে যাওয়া = শর্তাবলিতে সম্মতি.
+- **OTP যাচাই — `app/(auth)/otp.tsx`.** Shows the target phone
+  (Bengali digits). Four boxes are rendered from ONE visually hidden
+  TextInput laid over the box row (tapping the boxes focuses it;
+  the active box gets the primary border, an error turns all four
+  danger). **Demo behaviour, clearly labelled on screen**: a
+  primary-tint panel reads "ডেমো মোড — এখনো SMS যুক্ত হয়নি। ডেমো
+  কোড: ১২৩৪", and ONLY the code 1234 verifies — any other 4 digits
+  show "কোড মিলছে না" inline (no any-code shortcut). Resend is a
+  ৩০-second countdown label; when it expires, "আবার কোড পাঠান"
+  appears and merely restarts the countdown + clears the boxes (no
+  SMS is sent). Success → /setup (new-shop flow). A quiet text
+  button "আগের দোকান আছে? সরাসরি ঢুকুন" replaces to the tabs home
+  for existing shops.
+- **দোকান সেটআপ — `app/(auth)/setup.tsx`.** Logo placeholder:
+  64px tint circle (ImagePlus icon) with a "ছবি দিন" action —
+  visual only, no image picker. Form: দোকানের নাম*, মালিকের নাম*
+  (both validated with inline errors), ঠিকানা/বাজার, জেলা, and
+  দোকানের ধরন chips (টেইলার্স / বুটিক / দুটোই, default টেইলার্স).
+  Save → /plan. Nothing is persisted.
+- **প্ল্যান বাছাই — `app/(auth)/plan.tsx`.** মাসিক/বার্ষিক toggle
+  chips. Two plan panels (selected = primary border + primary tint,
+  with a radio dot): ফ্রি (শুরু) ৳০ — মাসে ৩০টি অর্ডার, মাপের খাতা,
+  বকেয়া তালিকা; প্রো (badge "জনপ্রিয়", mustard tint) — মাসিক
+  ৳৪৯৯, বার্ষিক ৳৪,৯৯০ with "২ মাস ফ্রি" — অসীম অর্ডার, SMS
+  নোটিফিকেশন, কারিগর হিসাব, রিপোর্ট. প্রো is preselected. Note
+  line "প্রথম ১ মাস ফ্রি — কার্ড লাগবে না।" "শুরু করুন" replaces
+  to the tabs home. Prices render in Bengali digits via formatTaka
+  + toBnDigits.
+
+### Shared bits — `src/components/AuthBits.tsx`
+- `LabeledInput` — label-on-top 44px field (paper-tinted inside
+  white panels, same convention as the new-order form), primary
+  border on focus, inline danger error. Used by login + setup.
+- `SelectChips` — the single-select filled-primary chip row (same
+  style as the karigar role chips), used by setup + plan.
+
+### Deviations / notes
+- The OTP boxes use an opacity-0 overlay input rather than four
+  separate inputs — one source of truth for the code, no focus
+  juggling; digits render in Bengali inside the boxes.
+- The plan radio dot is an extra affordance on top of the specced
+  border + tint selected state (circles are allowed; it reads as a
+  radio, not decoration).
+- All state is local/useState — setup data and the chosen plan are
+  NOT written anywhere; they become real when Supabase lands.
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0, no errors).
+- `npx expo export --platform web` — PASS; login, otp, setup and
+  plan bundles all emitted alongside the existing routes.
+- No git operations, no Supabase.

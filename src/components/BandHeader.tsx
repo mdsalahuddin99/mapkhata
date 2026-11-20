@@ -16,6 +16,8 @@ interface BandHeaderProps {
   /** Quieter side number inside the same panel. */
   sideLabel: string;
   sideValue: string;
+  /** Optional — makes the avatar a button (Package F: entry to /login). */
+  onAvatarPress?: () => void;
 }
 
 /**
@@ -35,15 +37,26 @@ export function BandHeader({
   balanceValue,
   sideLabel,
   sideValue,
+  onAvatarPress,
 }: BandHeaderProps) {
   const [revealed, setRevealed] = useState(false);
 
   return (
     <View style={styles.band}>
       <View style={styles.topRow}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{avatarInitial}</Text>
-        </View>
+        {onAvatarPress ? (
+          <Pressable
+            onPress={onAvatarPress}
+            style={({ pressed }) => [styles.avatar, pressed && styles.pressed]}
+            accessibilityLabel="লগইন"
+          >
+            <Text style={styles.avatarText}>{avatarInitial}</Text>
+          </Pressable>
+        ) : (
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{avatarInitial}</Text>
+          </View>
+        )}
         <View style={styles.shopBlock}>
           <Text style={styles.shopName} numberOfLines={1}>
             {shopName}
