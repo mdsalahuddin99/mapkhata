@@ -472,3 +472,92 @@ money can be collected against it, and a receipt can be shown — with the
   emitted (order detail 16KB, collect 8KB, receipt 8KB) alongside the
   existing routes.
 - No git operations, no Supabase.
+
+## Package D: কারিগর বিস্তারিত + নতুন কারিগর + কারিগর পেমেন্ট (2026-11-20)
+
+Goal: the কারিগর tab stops being a static mock page — karigars get
+their own store (same pattern as orders), a detail page with work +
+payment history, an add-karigar form, and a wage-payment screen whose
+effect shows up everywhere immediately.
+
+### Store — `src/store/karigars.ts` (new)
+- Mirrors `src/store/orders.ts`: module-level state seeded from the
+  mock karigars + their `karigarWork` entries, `useSyncExternalStore`,
+  immutable updates + listener fan-out. Screens only see
+  `useKarigars()` / `karigarTotals()` / `karigarSummary()` /
+  `addKarigar()` / `addKarigarPayment()`.
+- Money model per karigar: earned (this month) = the mock aggregate
+  `monthlyEarned`; paid = sum of `payments`; due (পাওনা) =
+  max(0, earned − paid). Seeded payment history per karigar
+  (2 entries each, নগদ/বিকাশ/নাগদ, ৩–১৩ days ago) is sized so paid
+  equals `monthlyEarned − wageDue` — the derived due therefore
+  reproduces the mock dues exactly (৳4,200 / ৳3,150 / ৳2,400 /
+  ৳1,800; tab total ৳11,550, পরিশোধ ৳7,200), and the detail screen
+  gets a real history instead of an empty list.
+- `addKarigar({name, role, phone?, pieceRates?})` appends an entry
+  with zeroed aggregates and empty work/payments. `wageDue` on the
+  entry stays 0 — all screens read the derived totals, never the raw
+  mock field.
+- `addKarigarPayment(id, amount, method?)` clamps to the open due
+  (never overpays), appends `{amount, dateOffset: 0, method}`, and
+  returns the amount actually recorded — same contract as orders'
+  `addPayment`.
+
+### Screens
+- **কারিগর tab migrated to the store** (`app/(tabs)/karigar.tsx`):
+  same visual design as before; summary + per-karigar পাওনা/আয় now
+  derived via `karigarTotals`. Each karigar block is one Pressable →
+  detail. Header gains a compact "+ নতুন কারিগর" primary button
+  (Plus icon) via a new optional `right` slot on `WhiteHeader`
+  (বকেয়া tab unaffected).
+- **কারিগর বিস্তারিত — `app/karigar/[id].tsx`** (stack). BackHeader;
+  identity panel (48px circular initial avatar in the tab's rotating
+  tint, name, role, phone row when present); SummaryPanel with পাওনা
+  big in ink and stats এই মাসে আয় / মোট পরিশোধ / এই মাসে সম্পন্ন
+  পিস; কাজের তালিকা — one LedgerPanel of work rows (garment · order
+  code/customer, "N পিস × ৳রেট" sub-line, running tag, amount);
+  পেমেন্ট ইতিহাস — LedgerPanel, newest first (method, date label via
+  `deliveryLabel`, amount). Actions: পেমেন্ট করুন (primary, only
+  when due > 0) → payment screen; কাজ দিন (secondary) is **visual
+  only** — assigning work lives in the order flow (অর্ডারে কারিগর
+  বাছাই); wiring it here is a later package. Empty states are the
+  standard one-liners.
+- **নতুন কারিগর — `app/karigar/new.tsx`** (stack). Form panel: নাম
+  (required, inline danger error), ভূমিকা chips (সেলাই মাস্টার /
+  কাটিং মাস্টার / সেলাই / ফিনিশিং / অন্যান্য; stored as `skill`),
+  মোবাইল নম্বর (optional, phone-pad). পিস-রেট panel: পাঞ্জাবি ৩০০ /
+  কামিজ ২৫০ / কাটিং ১৫০ / ব্লাউজ ১৮০ prefilled from the rates the
+  mock work already uses, editable right-aligned numeric inputs with
+  ৳ mark; zero/blank rates are dropped. Save → `addKarigar` → back;
+  the new karigar is on the tab (with an empty কাজের তালিকা).
+- **কারিগর পেমেন্ট — `app/karigar/pay/[id].tsx`** (stack). Mirrors
+  the টাকা জমা collect screen control-for-control: identity panel,
+  পাওনা panel, amount input prefilled with the full due, quick chips
+  (পুরোটা / ৫০০ / ১,০০০), method chips (নগদ / বিকাশ / নাগদ), live
+  "পেমেন্টের পর পাওনা থাকবে", inline validation (amount > 0 and
+  ≤ due) → `addKarigarPayment` → back. Deliberate difference from
+  collect: পাওনা and the remaining figure stay **ink** — this due is
+  the shop's own payable, and amber is reserved for customer dues
+  (DESIGN.md v1.3). A karigar with no due sees "এই কারিগরের কোনো
+  পাওনা নেই।"
+
+### Deviations / notes
+- The role chip "সেলাই" is stored verbatim as the skill, so a karigar
+  added with it shows "সেলাই" where seeded karigars show "সেলাই
+  কারিগর" — the chip list follows the Package D spec exactly.
+- Piece rates from the form are stored on the entry (`pieceRates`)
+  but nothing consumes them yet — they take effect when কাজ দেওয়া
+  is wired to the order flow.
+- Seeded payments are mock history invented for the detail screen;
+  their sums are pinned to the mock aggregates (see Store), so no
+  figure on the tab changed in this migration.
+- Store state is session-only, like the orders store — payments and
+  new karigars reset on app restart until Supabase lands.
+
+### Verification
+- `rm -rf dist` first (stale-dist tsc gotcha), then
+  `npx tsc --noEmit` — PASS (exit 0, no errors).
+- `npx expo export --platform web` — PASS; new bundles emitted for
+  karigar detail, karigar payment ([id] bundles) and নতুন কারিগর
+  (new) alongside the migrated কারিগর tab bundle.
+- No git operations, no Supabase.

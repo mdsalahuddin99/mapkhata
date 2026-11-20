@@ -1,16 +1,18 @@
+import { useRouter } from 'expo-router';
+import { Plus } from 'lucide-react-native';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { PrimaryButton } from '../../src/components/Buttons';
 import { LedgerPanel } from '../../src/components/LedgerRow';
 import { SummaryPanel } from '../../src/components/SummaryPanel';
 import { WhiteHeader } from '../../src/components/WhiteHeader';
+import { toBnDigits, workAmount } from '../../src/data/mock';
 import {
-  karigars,
-  karigarStats,
-  toBnDigits,
-  workAmount,
-  workForKarigar,
-} from '../../src/data/mock';
+  karigarSummary,
+  karigarTotals,
+  useKarigars,
+} from '../../src/store/karigars';
 import {
   colors,
   fontFamily,
@@ -36,61 +38,90 @@ function initialOf(name: string): string {
 }
 
 export default function KarigarScreen() {
+  const router = useRouter();
+  // Package D: the list reads from the karigar store, so payments made
+  // on the payment screen and karigars added on the form appear here
+  // immediately (figures derived per karigar, never the mock fields).
+  const entries = useKarigars();
+  const summary = karigarSummary(entries);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <WhiteHeader title="কারিগর" />
+      <WhiteHeader
+        title="কারিগর"
+        right={
+          <PrimaryButton
+            compact
+            label="নতুন কারিগর"
+            onPress={() => router.push('/karigar/new')}
+            icon={<Plus size={18} color="#FFFFFF" strokeWidth={2.2} />}
+          />
+        }
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.body}>
           <SummaryPanel
             label="এই মাসে কারিগরদের মোট পাওনা"
-            value={takaBn(karigarStats.totalWageDue)}
+            value={takaBn(summary.totalWageDue)}
             valueColor={colors.ink}
             stats={[
-              { value: `${toBnDigits(karigarStats.karigarCount)} জন`, label: 'কারিগর' },
-              { value: `${toBnDigits(karigarStats.monthlyPieces)} পিস`, label: 'এই মাসে সম্পন্ন' },
-              { value: takaBn(karigarStats.monthlyPaid), label: 'পরিশোধ হয়েছে' },
+              { value: `${toBnDigits(summary.karigarCount)} জন`, label: 'কারিগর' },
+              { value: `${toBnDigits(summary.monthlyPieces)} পিস`, label: 'এই মাসে সম্পন্ন' },
+              { value: takaBn(summary.monthlyPaid), label: 'পরিশোধ হয়েছে' },
             ]}
           />
 
           <Text style={styles.sectionTitle}>কারিগর অনুযায়ী হিসাব</Text>
 
           <LedgerPanel>
-            {karigars.map((karigar, ki) => {
-              const work = workForKarigar(karigar.id);
+            {entries.map((entry, ki) => {
+              const totals = karigarTotals(entry);
               const tint = avatarTints[ki % avatarTints.length];
-              const isLastBlock = ki === karigars.length - 1;
+              const isLastBlock = ki === entries.length - 1;
               return (
-                <View key={karigar.id} style={!isLastBlock && styles.blockDivider}>
+                <Pressable
+                  key={entry.id}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/karigar/[id]',
+                      params: { id: entry.id },
+                    } as never)
+                  }
+                  style={({ pressed }) => [
+                    !isLastBlock && styles.blockDivider,
+                    pressed && styles.blockPressed,
+                  ]}
+                >
                   <View style={styles.khead}>
                     <View style={[styles.avatar, { backgroundColor: tint.bg }]}>
                       <Text style={[styles.avatarText, { color: tint.fg }]}>
-                        {initialOf(karigar.name)}
+                        {initialOf(entry.name)}
                       </Text>
                     </View>
                     <View style={styles.kheadMain}>
                       <Text style={styles.kname} numberOfLines={1}>
-                        {karigar.name}
+                        {entry.name}
                       </Text>
                       <Text style={styles.krole} numberOfLines={1}>
-                        {karigar.skill}
+                        {entry.skill}
                       </Text>
                     </View>
                     <View style={styles.earn}>
                       <Text style={styles.earnValue}>
-                        পাওনা {takaBn(karigar.wageDue)}
+                        পাওনা {takaBn(totals.due)}
                       </Text>
                       <Text style={styles.earnLabel}>
-                        এই মাসে আয় {takaBn(karigar.monthlyEarned)}
+                        এই মাসে আয় {takaBn(totals.earned)}
                       </Text>
                     </View>
                   </View>
 
-                  {work.map((w, wi) => (
+                  {entry.work.map((w, wi) => (
                     <View
                       key={w.id}
                       style={[
                         styles.krow,
-                        wi < work.length - 1 && styles.rowDivider,
+                        wi < entry.work.length - 1 && styles.rowDivider,
                       ]}
                     >
                       <View style={styles.garmentCell}>
@@ -112,7 +143,7 @@ export default function KarigarScreen() {
                       <Text style={styles.wage}>{takaBn(workAmount(w))}</Text>
                     </View>
                   ))}
-                </View>
+                </Pressable>
               );
             })}
           </LedgerPanel>
@@ -135,6 +166,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
   },
   blockDivider: { borderBottomWidth: 1, borderBottomColor: colors.hairline },
+  blockPressed: { backgroundColor: colors.background },
   rowDivider: { borderBottomWidth: 1, borderBottomColor: colors.hairline },
   khead: {
     flexDirection: 'row',
